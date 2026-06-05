@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gelato Shop — Helado y Waffle · Xalapa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --white: #ffffff;
+      --off-white: #fafaf8;
+      --black: #111111;
+      --gray: #888;
+      --pink: #f5c2cc;
+      --pink-deep: #e8a0b0;
+      --accent: #1a1a1a;
+      --radius: 2px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--white);
+      color: var(--black);
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .6rem 2.5rem;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      transition: padding .3s;
+    }
+    nav.scrolled { padding: .4rem 2.5rem; }
+
+    .nav-logo {
+      height: 34px;
+      width: auto;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.4rem;
+      list-style: none;
+    }
+    .nav-links a {
+      text-decoration: none;
+      font-size: .8rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--black);
+      font-weight: 500;
+      transition: opacity .2s;
+    }
+    .nav-links a:hover { opacity: .5; }
+
+    .nav-cta {
+      background: var(--black);
+      color: var(--white) !important;
+      padding: .55rem 1.3rem;
+      border-radius: 100px;
+      transition: background .2s !important;
+    }
+    .nav-cta:hover { background: #333 !important; opacity: 1 !important; }
+
+    .burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+    .burger span { display: block; width: 22px; height: 1.5px; background: var(--black); transition: .3s; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding-top: 72px;
+    }
+
+    .hero-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 5rem 4rem 5rem 5rem;
+    }
+
+    .hero-eyebrow {
+      font-size: .72rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 1.6rem;
+    }
+
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3.5rem, 5.5vw, 6rem);
+      font-weight: 300;
+      line-height: 1.05;
+      margin-bottom: 1.8rem;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      font-weight: 300;
+    }
+
+    .hero-sub {
+      font-size: .92rem;
+      color: #555;
+      line-height: 1.7;
+      max-width: 380px;
+      margin-bottom: 2.8rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: .6rem;
+      background: var(--black);
+      color: var(--white);
+      padding: .85rem 2rem;
+      border-radius: 100px;
+      font-size: .82rem;
+      letter-spacing: .06em;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background .2s, transform .2s;
+    }
+    .btn-primary:hover { background: #333; transform: translateY(-1px); }
+
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: .6rem;
+      border: 1.5px solid var(--black);
+      color: var(--black);
+      padding: .85rem 2rem;
+      border-radius: 100px;
+      font-size: .82rem;
+      letter-spacing: .06em;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all .2s;
+    }
+    .btn-outline:hover { background: var(--black); color: var(--white); transform: translateY(-1px); }
+
+    .hero-right {
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-right img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 30%;
+    }
+
+
+    /* ── MARQUEE ── */
+    .marquee-wrap {
+      overflow: hidden;
+      border-top: 1px solid #eee;
+      border-bottom: 1px solid #eee;
+      padding: .9rem 0;
+      background: var(--off-white);
+    }
+    .marquee-inner {
+      display: flex;
+      gap: 3rem;
+      white-space: nowrap;
+      animation: marquee 22s linear infinite;
+      width: max-content;
+    }
+    .marquee-inner span {
+      font-size: .72rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: #999;
+    }
+    .marquee-inner span.dot { color: #ccc; }
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ── SECTIONS SHARED ── */
+    section { padding: 7rem 5rem; }
+    .section-label {
+      font-size: .7rem;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 4vw, 4rem);
+      font-weight: 300;
+      line-height: 1.1;
+      margin-bottom: 1.4rem;
+    }
+    .section-title em { font-style: italic; }
+    .section-body {
+      font-size: .9rem;
+      color: #555;
+      line-height: 1.8;
+      max-width: 520px;
+    }
+
+    /* ── NOSOTROS ── */
+    #nosotros {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+      background: var(--white);
+    }
+
+    .nosotros-images {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: .8rem;
+    }
+    .nosotros-images img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+    .nosotros-images img:first-child {
+      grid-column: 1 / -1;
+      height: 300px;
+    }
+
+    .nosotros-stats {
+      display: flex;
+      gap: 2.5rem;
+      margin-top: 2.5rem;
+    }
+    .stat strong {
+      display: block;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.8rem;
+      font-weight: 300;
+      line-height: 1;
+    }
+    .stat span {
+      font-size: .72rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--gray);
+    }
+
+    /* ── VENTA ── */
+    #venta {
+      background: var(--off-white);
+    }
+    .venta-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 3.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .venta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.2rem;
+    }
+    .product-card {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      transition: transform .25s, box-shadow .25s;
+    }
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 48px rgba(0,0,0,.1);
+    }
+    .product-card img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      display: block;
+    }
+    .product-info {
+      padding: 1.2rem 1.4rem;
+    }
+    .product-info h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      margin-bottom: .3rem;
+    }
+    .product-info p {
+      font-size: .78rem;
+      color: var(--gray);
+      line-height: 1.5;
+    }
+
+    /* ── TOPPINGS ── */
+    #toppings {
+      background: var(--pink);
+      text-align: center;
+      padding: 7rem 3rem;
+    }
+    #toppings .section-title { margin: 0 auto 1rem; }
+    #toppings .section-body { margin: 0 auto 3.5rem; text-align: center; }
+
+    .toppings-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .topping-card {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      transition: transform .25s;
+    }
+    .topping-card:hover { transform: scale(1.03); }
+    .topping-card img {
+      width: 100%;
+      height: 320px;
+      object-fit: cover;
+    }
+    .topping-card p {
+      padding: .9rem;
+      font-size: .78rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #555;
+    }
+
+    /* ── PEDIR ── */
+    #pedir {
+      background: var(--black);
+      color: white;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      padding: 7rem 5rem;
+    }
+    #pedir .section-label { color: rgba(255,255,255,.4); }
+    #pedir .section-title { color: white; }
+    #pedir .section-body { color: rgba(255,255,255,.6); }
+
+    .pedir-right {
+      display: flex;
+      flex-direction: column;
+      gap: 1.4rem;
+    }
+    .pedir-step {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      background: rgba(255,255,255,.06);
+      border-radius: 8px;
+      padding: 1.2rem 1.4rem;
+    }
+    .pedir-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .75rem;
+      font-weight: 500;
+      flex-shrink: 0;
+      color: white;
+    }
+    .pedir-step p { font-size: .85rem; color: rgba(255,255,255,.75); line-height: 1.5; }
+
+    .btn-whatsapp {
+      display: inline-flex;
+      align-items: center;
+      gap: .7rem;
+      background: #25D366;
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 100px;
+      font-size: .85rem;
+      font-weight: 500;
+      text-decoration: none;
+      margin-top: 1rem;
+      transition: background .2s, transform .2s;
+      width: fit-content;
+    }
+    .btn-whatsapp:hover { background: #1ebe5d; transform: translateY(-2px); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--off-white);
+      padding: 3.5rem 5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      border-top: 1px solid #eee;
+    }
+    .footer-logo { height: 36px; }
+    .footer-info { font-size: .78rem; color: var(--gray); line-height: 1.7; text-align: center; }
+    .footer-copy { font-size: .72rem; color: #bbb; }
+
+    /* ── MOBILE ── */
+    @media (max-width: 900px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: white; padding: 1.5rem; border-bottom: 1px solid #eee; gap: 1.2rem; }
+      .nav-links.open { display: flex; }
+      .burger { display: flex; }
+
+      #hero { grid-template-columns: 1fr; min-height: auto; }
+      .hero-left { padding: 5rem 1.5rem 3rem; }
+      .hero-right { height: 55vw; }
+
+      section { padding: 5rem 1.5rem; }
+      #nosotros { grid-template-columns: 1fr; gap: 2.5rem; }
+      .venta-grid { grid-template-columns: 1fr 1fr; }
+      .toppings-grid { grid-template-columns: 1fr 1fr; }
+      #pedir { grid-template-columns: 1fr; padding: 5rem 1.5rem; }
+      footer { padding: 2.5rem 1.5rem; flex-direction: column; text-align: center; }
+    }
+
+    @media (max-width: 560px) {
+      .venta-grid { grid-template-columns: 1fr; }
+      .toppings-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" style="font-family:'Cormorant Garamond',serif; font-size:1.35rem; font-weight:400; letter-spacing:.06em; text-decoration:none; color:var(--black);">Gelato Shop</a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#nosotros">Nosotros</a></li>
+    <li><a href="#venta">Menú</a></li>
+    <li><a href="#toppings">Paletas</a></li>
+    <li><a href="#pedir" class="nav-cta">Pedir ahora</a></li>
+  </ul>
+  <div class="burger" id="burger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-left">
+    <p class="hero-eyebrow">Xalapa, Veracruz · Más de 14 años</p>
+    <h1 class="hero-title">Helado <em>artesanal</em><br>hecho con amor</h1>
+    <p class="hero-sub">Gelatos cremosos, waffles dorados y galletas recién horneadas. Una heladería pequeña con mucho sabor en el corazón de Xalapa.</p>
+    <div class="hero-actions">
+      <a href="#pedir" class="btn-primary">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path fill="currentColor" d="M11.997 2C6.477 2 2 6.477 2 12c0 1.745.45 3.385 1.236 4.808L2 22l5.336-1.22A9.96 9.96 0 0 0 12 22c5.523 0 10-4.477 10-10S17.52 2 11.997 2z" opacity=".2"/></svg>
+        Pedir por WhatsApp
+      </a>
+      <a href="#venta" class="btn-outline">Ver menú</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <img src="fotos-gelato/helado-2bolas-a.jpg" alt="Helados Gelato Shop" />
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-inner">
+    <span>Helado artesanal</span><span class="dot">·</span>
+    <span>Waffles</span><span class="dot">·</span>
+    <span>Galletas</span><span class="dot">·</span>
+    <span>Paletas</span><span class="dot">·</span>
+    <span>Xalapa, Veracruz</span><span class="dot">·</span>
+    <span>Desde 2011</span><span class="dot">·</span>
+    <span>Helado artesanal</span><span class="dot">·</span>
+    <span>Waffles</span><span class="dot">·</span>
+    <span>Galletas</span><span class="dot">·</span>
+    <span>Paletas</span><span class="dot">·</span>
+    <span>Xalapa, Veracruz</span><span class="dot">·</span>
+    <span>Desde 2011</span><span class="dot">·</span>
+  </div>
+</div>
+
+<!-- NOSOTROS -->
+<section id="nosotros">
+  <div class="nosotros-images">
+    <img src="fotos-gelato/nosotros-1.jpg" alt="Helados Gelato Shop" />
+    <img src="fotos-gelato/nosotros-2.jpg" alt="Envase Gelato Shop" />
+    <img src="fotos-gelato/nosotros-3.jpg" alt="Gelato artesanal" />
+  </div>
+
+  <div class="nosotros-text">
+    <p class="section-label">Nuestra historia</p>
+    <h2 class="section-title"><em>Sabores que despiertan</em><br>tus sentidos</h2>
+    <p class="section-body">
+      Nacimos en 2011 con una idea sencilla: hacer el mejor gelato de Xalapa. Más de catorce años después, seguimos elaborando cada helado con los mismos ingredientes frescos y la misma pasión del primer día. Un negocio pequeño donde cada bola cuenta.
+    </p>
+    <p class="section-body" style="margin-top:1rem;">
+      Nos encuentras en Diego Leño 51, Xalapa, Veracruz. Ven a conocernos o pide desde casa por WhatsApp.
+    </p>
+    <div class="nosotros-stats">
+      <div class="stat"><strong>14+</strong><span>Años de historia</span></div>
+      <div class="stat"><strong>100%</strong><span>Artesanal</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- VENTA -->
+<section id="venta">
+  <div class="venta-header">
+    <div>
+      <p class="section-label">Lo que ofrecemos</p>
+      <h2 class="section-title">Nuestro <em>menú</em></h2>
+    </div>
+    <a href="#pedir" class="btn-primary">Pedir ahora</a>
+  </div>
+
+  <div class="venta-grid">
+    <div class="product-card">
+      <img src="fotos-gelato/helado-2bolas-b.jpg" alt="Helado dos bolas" />
+      <div class="product-info">
+        <h3>Helado dos bolas</h3>
+        <p>Elige dos sabores de nuestra vitrina y los servimos en copa o cono artesanal.</p>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <img src="fotos-gelato/helado-1bola.jpg" alt="Helado una bola" />
+      <div class="product-info">
+        <h3>Helado una bola</h3>
+        <p>El clásico de siempre — una bola generosa en cono o vasito, perfecta para cualquier antojo.</p>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <img src="fotos-gelato/waffle.jpg" alt="Waffle con helado" />
+      <div class="product-info">
+        <h3>Waffles</h3>
+        <p>Waffle esponjoso recién hecho con una bola de gelato encima y toppings a tu gusto.</p>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <img src="fotos-gelato/galletas.jpg" alt="Galletas artesanales" />
+      <div class="product-info">
+        <h3>Galletas</h3>
+        <p>Red velvet, crinkle de chocolate y más — horneadas en casa con ingredientes selectos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOPPINGS -->
+<section id="toppings">
+  <p class="section-label" style="color: #c0748a;">Paletas artesanales</p>
+  <h2 class="section-title" style="max-width:500px; margin: 0 auto 1rem;">Nuestras <em>paletas</em></h2>
+  <p class="section-body" style="margin: 0 auto 3.5rem;">De chocolate, vainilla o fresa — todas bañadas en chocolate y decoradas con diferentes toppings a tu elección.</p>
+
+  <div class="toppings-grid">
+    <div class="topping-card">
+      <img src="fotos-gelato/paletas-rosa.jpg" alt="Paletas fondo rosa" />
+      <p>Paletas especiales</p>
+    </div>
+    <div class="topping-card">
+      <img src="fotos-gelato/paleta-sprinkles.jpg" alt="Paleta sprinkles y granillo" />
+      <p>Bañadas en chocolate</p>
+    </div>
+    <div class="topping-card">
+      <img src="fotos-gelato/paleta-galleta.jpg" alt="Paleta galleta" />
+      <p>Con galleta triturada</p>
+    </div>
+  </div>
+</section>
+
+<!-- PEDIR -->
+<section id="pedir">
+  <div class="pedir-text">
+    <p class="section-label">Ordena fácil</p>
+    <h2 class="section-title">Pide por<br><em>WhatsApp</em></h2>
+    <p class="section-body">Sin complicaciones. Escríbenos, dinos qué quieres y te decimos cómo pasar a recoger o coordinamos la entrega.</p>
+    <a class="btn-whatsapp" href="https://wa.me/5212288000000?text=Hola%20Gelato%20Shop%2C%20me%20gustar%C3%ADa%20hacer%20un%20pedido%20%F0%9F%8D%A6" target="_blank" rel="noopener">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.745.45 3.385 1.236 4.808L2 22l5.336-1.22A9.96 9.96 0 0 0 12 22c5.523 0 10-4.477 10-10S17.52 2 12 2z" opacity=".3"/></svg>
+      Escribirnos ahora
+    </a>
+    <p style="font-size:.72rem; color:rgba(255,255,255,.35); margin-top:.8rem;">Xalapa, Veracruz · Lun–Dom</p>
+  </div>
+
+  <div class="pedir-right">
+    <div class="pedir-step">
+      <div class="pedir-num">1</div>
+      <p>Elige tu helado, waffle o galleta del menú y anota tu sabor favorito.</p>
+    </div>
+    <div class="pedir-step">
+      <div class="pedir-num">2</div>
+      <p>Mándanos un mensaje por WhatsApp con tu pedido y tu nombre.</p>
+    </div>
+    <div class="pedir-step">
+      <div class="pedir-num">3</div>
+      <p>Te confirmamos el total y coordinamos cómo recoger en tienda.</p>
+    </div>
+    <div class="pedir-step">
+      <div class="pedir-num">4</div>
+      <p>¡Disfruta tu gelato! Hecho con amor en Xalapa desde 2011.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <img class="footer-logo" src="fotos-gelato/logo.png" alt="Gelato Shop" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'" />
+  <span style="display:none; font-family:'Cormorant Garamond',serif; font-size:1.1rem;">Gelato shop</span>
+  <div class="footer-info">
+    <strong style="display:block; font-size:.82rem; color:#333; margin-bottom:.3rem;">Gelato Shop · Helado y Waffle</strong>
+    Diego Leño 51, Xalapa, Veracruz · Fundada en 2011
+  </div>
+  <p class="footer-copy">© 2025 Gelato Shop. Todos los derechos reservados.</p>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  function toggleMenu() {
+    document.getElementById('navLinks').classList.toggle('open');
+  }
+</script>
+</body>
+</html>
