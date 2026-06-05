@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Caballero Pixel Art</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: #1a1a2e;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  min-height: 100vh;
+  padding-bottom: 60px;
+}
+canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  display: block;
+}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const Z = 5; // zoom: each pixel = 5px
+
+// Palette
+const _ = null;
+const a = '#c8c8c8'; // light silver
+const b = '#a0a0a0'; // mid silver
+const c = '#787878'; // dark silver
+const d = '#505050'; // darkest silver
+const e = '#111111'; // black (visor)
+const f = '#d4a017'; // gold
+const g = '#8b6510'; // dark gold
+const h = '#6b3820'; // brown (handle)
+const i = '#3a1c10'; // dark brown
+const j = '#e8e8e8'; // white highlight
+const k = '#d0d0d0'; // near-white
+const l = '#b8b8b8'; // lighter silver
+
+// ── Knight sprite: 18 cols × 30 rows ──
+// Matches the reference image closely
+const KNIGHT = [
+  [_,_,_,_,_,_,b,b,b,b,_,_,_,_,_,_,_,_], // 0  helmet top
+  [_,_,_,_,_,b,a,a,a,a,b,_,_,_,_,_,_,_], // 1
+  [_,_,_,_,b,a,a,j,j,a,a,b,_,_,_,_,_,_], // 2  face
+  [_,_,_,_,b,l,a,j,j,a,l,b,_,_,_,_,_,_], // 3
+  [_,_,_,_,c,b,e,e,e,e,b,c,_,_,_,_,_,_], // 4  visor
+  [_,_,_,_,c,a,a,a,a,a,a,c,_,_,_,_,_,_], // 5
+  [_,_,_,_,_,b,c,b,b,c,b,_,_,_,_,_,_,_], // 6  chin
+  [_,_,_,_,_,_,b,a,a,b,_,_,_,_,_,_,_,_], // 7  neck
+
+  // shoulders
+  [_,_,_,c,b,a,a,a,a,a,a,b,c,_,_,_,_,_], // 8
+  [_,_,c,b,a,a,a,a,a,a,a,a,b,c,_,_,_,_], // 9  upper torso
+  [_,c,b,a,a,a,a,a,a,a,a,a,a,b,c,_,_,_], // 10
+  [_,c,b,a,a,a,a,a,a,a,a,a,a,b,c,_,_,_], // 11
+
+  // belt
+  [_,c,b,a,b,f,f,f,f,f,b,a,b,c,_,_,_,_], // 12
+  [_,_,c,g,f,f,f,f,f,f,f,g,c,_,_,_,_,_], // 13
+
+  // lower torso
+  [_,_,c,b,a,a,a,a,a,a,b,c,_,_,_,_,_,_], // 14
+  [_,_,c,b,b,a,a,a,a,b,b,c,_,_,_,_,_,_], // 15
+
+  // LEFT ARM (shield) — cols 0-3 | BODY — cols 4-9 | RIGHT ARM (sword) — cols 10-15
+  [f,g,b,a,_,_,a,a,_,_,a,b,c,b,a,b,_,_], // 16
+  [f,g,b,b,_,_,a,a,_,_,a,b,c,a,a,a,_,_], // 17
+  [h,f,c,c,_,_,_,_,_,_,c,c,c,_,l,l,_,_], // 18  sword upper
+  [i,g,d,_,_,_,_,_,_,_,d,_,_,_,l,l,_,_], // 19  sword tip
+
+  // legs upper
+  [_,_,_,c,b,b,a,a,b,b,c,_,_,_,_,_,_,_], // 20
+  [_,_,_,c,b,b,a,a,b,b,c,_,_,_,_,_,_,_], // 21
+  [_,_,c,b,a,a,a,a,a,a,b,c,_,_,_,_,_,_], // 22
+
+  // leg split
+  [_,_,c,b,a,c,_,_,c,a,b,c,_,_,_,_,_,_], // 23
+  [_,_,c,b,a,b,_,_,b,a,b,c,_,_,_,_,_,_], // 24
+  [_,_,c,b,b,c,_,_,c,b,b,c,_,_,_,_,_,_], // 25
+
+  // feet
+  [_,_,c,b,c,_,_,_,_,c,b,c,_,_,_,_,_,_], // 26
+  [_,_,d,c,d,_,_,_,_,d,c,d,_,_,_,_,_,_], // 27
+];
+
+const COLS = 18, ROWS = 28;
+canvas.width  = (COLS + 14) * Z; // room for flag on right
+canvas.height = (ROWS + 5) * Z;
+
+// ── Animation state ──
+let tick = 0;
+let phase = 0;
+// phases: 0=idle 1=windup 2=raise 3=strike 4=planted 5=wave
+const DURATIONS = [100, 25, 30, 20, 220, 80];
+
+function drawKnight(ox, oy, armAngle) {
+  for (let row = 0; row < KNIGHT.length; row++) {
+    for (let col = 0; col < KNIGHT[row].length; col++) {
+      const color = KNIGHT[row][col];
+      if (!color) continue;
+      ctx.fillStyle = color;
+      ctx.fillRect((ox + col) * Z, (oy + row) * Z, Z, Z);
+    }
+  }
+}
+
+// Draw sword separately with rotation for animation
+function drawSword(ox, oy, angle) {
+  // pivot at grip
+  const px = (ox + 13.5) * Z;
+  const py = (oy + 17) * Z;
+  ctx.save();
+  ctx.translate(px, py);
+  ctx.rotate(angle);
+  // blade (6 px tall)
+  for (let s = 0; s < 7; s++) {
+    ctx.fillStyle = s === 0 ? '#ffd700' : (s === 6 ? '#aaaaaa' : '#cccccc');
+    ctx.fillRect(-Z/2, (-s) * Z, Z, Z);
+  }
+  // handle
+  ctx.fillStyle = h;
+  ctx.fillRect(-Z/2, Z, Z, 2 * Z);
+  // guard
+  ctx.fillStyle = f;
+  ctx.fillRect(-Z * 1.5, 0, 3 * Z, Z);
+  ctx.restore();
+}
+
+// Draw shield (left arm, static)
+function drawShield(ox, oy) {
+  // Gold outer frame
+  for (let row = 0; row < 5; row++) {
+    for (let col = 0; col < 4; col++) {
+      let color;
+      if (row === 0 || col === 0 || col === 3 || row === 4) color = f;
+      else color = h;
+      ctx.fillStyle = color;
+      ctx.fillRect((ox + col) * Z, (oy + row) * Z, Z, Z);
+    }
+  }
+}
+
+// Draw flag pole + waving banner
+function drawFlag(px, py, waving) {
+  // Pole — 14 px tall
+  for (let s = 0; s < 15; s++) {
+    ctx.fillStyle = s === 0 ? '#ffd700' : (s % 2 === 0 ? '#7a5020' : '#5c3a14');
+    ctx.fillRect(px * Z, (py + s) * Z, Z, Z);
+  }
+  if (!waving) return;
+  // Banner — animated wave using sin
+  const BW = 7, BH = 5;
+  for (let row = 0; row < BH; row++) {
+    for (let col = 0; col < BW; col++) {
+      const wave = Math.sin(tick * 0.13 + col * 0.7) * 2;
+      const bx = (px + 1 + col) * Z + wave;
+      const by = (py + row) * Z;
+      let color;
+      if (row === 0 || row === BH-1 || col === 0 || col === BW-1) color = '#ffd700';
+      else color = (row + col) % 2 === 0 ? '#cc1100' : '#aa0e00';
+      ctx.fillStyle = color;
+      ctx.fillRect(bx, by, Z, Z);
+    }
+  }
+}
+
+// Ground tiles
+function drawGround(y) {
+  const tw = 2;
+  for (let x = 0; x < canvas.width / Z; x += tw) {
+    ctx.fillStyle = (Math.floor(x/tw) % 2 === 0) ? '#3d6b4a' : '#4a7c59';
+    ctx.fillRect(x * Z, y * Z, tw * Z, 4 * Z);
+  }
+  ctx.fillStyle = '#5cb870';
+  ctx.fillRect(0, y * Z, canvas.width, 3);
+}
+
+let phaseTimer = 0;
+
+function loop() {
+  tick++;
+  phaseTimer++;
+  if (phaseTimer >= DURATIONS[phase]) {
+    phaseTimer = 0;
+    phase = (phase + 1) % DURATIONS.length;
+  }
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // BG
+  const bg = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  bg.addColorStop(0, '#0d0d1a');
+  bg.addColorStop(1, '#1a1a2e');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Stars
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  [[30,20],[80,10],[120,35],[180,15],[230,28],[290,8],[350,22]].forEach(([x,y])=>{
+    ctx.fillRect(x, y, 2, 2);
+  });
+
+  drawGround(ROWS + 2);
+
+  // Idle bob
+  const bob = (phase === 0 || phase === 4 || phase === 5)
+    ? Math.round(Math.sin(tick * 0.07) * 0.7)
+    : 0;
+
+  const kx = 4, ky = 1 + bob;
+
+  // Compute sword angle by phase
+  let swordAngle = -0.25; // default slight angle
+  let showFlag = false;
+  let flagWaving = false;
+  const flagX = kx + COLS - 2;
+  const flagY = ky + ROWS - 14;
+
+  if (phase === 1) { // windup — sword lowers
+    const t = phaseTimer / DURATIONS[1];
+    swordAngle = -0.25 + t * 0.4;
+  } else if (phase === 2) { // raise — sword goes up
+    const t = phaseTimer / DURATIONS[2];
+    swordAngle = 0.15 - t * 1.4;
+    showFlag = true;
+    // flag being carried up by knight
+  } else if (phase === 3) { // strike — slam down
+    const t = phaseTimer / DURATIONS[3];
+    swordAngle = -1.25 + t * 1.0;
+    showFlag = true;
+  } else if (phase === 4) { // planted
+    swordAngle = 0.1;
+    showFlag = true;
+    flagWaving = true;
+  } else if (phase === 5) { // celebrate wave
+    swordAngle = -0.8 + Math.sin(tick * 0.18) * 0.5;
+    showFlag = true;
+    flagWaving = true;
+  }
+
+  // Draw flag behind knight
+  if (showFlag) {
+    drawFlag(flagX, flagY, flagWaving);
+  }
+
+  // Shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.beginPath();
+  ctx.ellipse(
+    (kx + COLS/2) * Z, (ky + ROWS + 2.2) * Z,
+    COLS/2.2 * Z, Z * 0.7,
+    0, 0, Math.PI * 2
+  );
+  ctx.fill();
+
+  // Knight body (without sword/shield — those drawn separately)
+  drawKnight(kx, ky, swordAngle);
+
+  // Shield (left arm)
+  drawShield(kx, ky + 16);
+
+  // Sword (right arm, animated)
+  drawSword(kx, ky, swordAngle);
+
+  requestAnimationFrame(loop);
+}
+
+loop();
+</script>
+</body>
+</html>

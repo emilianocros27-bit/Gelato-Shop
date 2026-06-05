@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MTB - Bicicleta de Montana</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #000000;
+      --surface: #111111;
+      --surface-2: #1a1a1a;
+      --text: #f5f5f7;
+      --text-2: #6e6e73;
+      --text-3: #3d3d3f;
+      --accent: #b8ff00;
+      --accent-dim: rgba(184, 255, 0, 0.1);
+      --border: rgba(255,255,255,0.08);
+      --border-2: rgba(255,255,255,0.14);
+      --radius: 18px;
+      --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+      --font-mono: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.5;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .nav-logo strong { color: var(--accent); }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .nav-links a {
+      color: var(--text-2);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 400;
+      transition: color 0.2s;
+      letter-spacing: -0.01em;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-pill {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 7px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: opacity 0.2s, transform 0.15s;
+      letter-spacing: -0.01em;
+    }
+
+    .nav-pill:hover { opacity: 0.82; }
+    .nav-pill:active { transform: scale(0.97); }
+
+    .nav-burger {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text-2);
+      cursor: pointer;
+      font-size: 22px;
+      padding: 4px;
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 100px 24px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Apple-style radial glow - CSS only, no image */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 900px;
+      height: 500px;
+      background: radial-gradient(ellipse at 50% 0%,
+        rgba(184, 255, 0, 0.14) 0%,
+        rgba(184, 255, 0, 0.04) 40%,
+        transparent 70%
+      );
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 24px;
+      opacity: 0.9;
+    }
+
+    .hero-headline {
+      font-size: clamp(56px, 9vw, 120px);
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.05em;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .hero-headline em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .hero-tagline {
+      font-size: clamp(19px, 2.5vw, 28px);
+      font-weight: 400;
+      color: var(--text-2);
+      letter-spacing: -0.02em;
+      margin-bottom: 40px;
+      max-width: 560px;
+      line-height: 1.4;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font);
+      text-decoration: none;
+      display: inline-block;
+      transition: opacity 0.2s, transform 0.15s;
+      letter-spacing: -0.02em;
+    }
+
+    .btn-primary:hover { opacity: 0.82; }
+    .btn-primary:active { transform: scale(0.97); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid rgba(184, 255, 0, 0.3);
+      padding: 13px 28px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: var(--font);
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      letter-spacing: -0.02em;
+    }
+
+    .btn-ghost:hover {
+      background: var(--accent-dim);
+      border-color: rgba(184, 255, 0, 0.5);
+    }
+
+    .btn-ghost:active { transform: scale(0.97); }
+
+    /* ─── DIVIDER ─── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* ─── STATEMENT ─── */
+    .statement {
+      padding: 100px 24px;
+      text-align: center;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .statement-text {
+      font-size: clamp(24px, 3.6vw, 44px);
+      font-weight: 600;
+      line-height: 1.2;
+      letter-spacing: -0.03em;
+      color: var(--text);
+    }
+
+    .statement-text .muted { color: var(--text-2); }
+
+    /* ─── DISCIPLINES ─── */
+    .disciplines {
+      padding: 60px 24px 100px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .section-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: clamp(32px, 4.5vw, 56px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      color: var(--text);
+    }
+
+    /* BENTO - no images, pure typography */
+    .bento {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 300px 300px 200px;
+      gap: 12px;
+    }
+
+    .bento-card {
+      border-radius: var(--radius);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 36px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s, background 0.3s;
+      cursor: default;
+    }
+
+    .bento-card:hover {
+      border-color: rgba(184, 255, 0, 0.25);
+      background: var(--surface-2);
+    }
+
+    /* Accent shimmer on hover */
+    .bento-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(184,255,0,0.5), transparent);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .bento-card:hover::before { opacity: 1; }
+
+    /* Enduro - tall left */
+    .bento-card:nth-child(1) { grid-row: span 2; }
+
+    /* Trail - full width bottom */
+    .bento-card:nth-child(4) { grid-column: span 2; }
+
+    .disc-number {
+      font-size: 13px;
+      font-family: var(--font-mono);
+      color: var(--text-3);
+      letter-spacing: 0.06em;
+      font-weight: 500;
+    }
+
+    .disc-bottom { }
+
+    .disc-tag {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.75;
+      margin-bottom: 10px;
+    }
+
+    .disc-name {
+      font-size: clamp(28px, 3.5vw, 42px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .bento-card:nth-child(1) .disc-name { font-size: clamp(36px, 4vw, 52px); }
+
+    .disc-desc {
+      font-size: 13px;
+      color: var(--text-2);
+      line-height: 1.55;
+      max-width: 360px;
+    }
+
+    /* ─── EQUIPMENT ─── */
+    .equipment {
+      padding: 60px 24px 100px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .equip-title {
+      font-size: clamp(30px, 4vw, 52px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      margin-bottom: 56px;
+      text-align: center;
+    }
+
+    .equip-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--border);
+      border-left: 1px solid var(--border);
+    }
+
+    .equip-item {
+      padding: 40px 36px;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s;
+    }
+
+    .equip-item:hover { background: var(--surface); }
+
+    .equip-num {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-3);
+      letter-spacing: 0.08em;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .equip-name {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .equip-desc {
+      font-size: 13px;
+      color: var(--text-2);
+      line-height: 1.6;
+    }
+
+    /* ─── STATS ─── */
+    .stats {
+      padding: 0 24px 100px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .stat-item {
+      padding: 56px 48px;
+      border-right: 1px solid var(--border);
+      position: relative;
+    }
+
+    .stat-item:last-child { border-right: none; }
+
+    .stat-num {
+      font-size: clamp(52px, 7vw, 88px);
+      font-weight: 700;
+      letter-spacing: -0.06em;
+      line-height: 1;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .stat-num .unit {
+      font-size: 0.42em;
+      color: var(--accent);
+      font-weight: 700;
+      vertical-align: super;
+      letter-spacing: -0.02em;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--text-2);
+      line-height: 1.5;
+      max-width: 200px;
+    }
+
+    /* ─── CTA ─── */
+    .cta-section {
+      padding: 100px 24px 120px;
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .cta-headline {
+      font-size: clamp(40px, 6vw, 76px);
+      font-weight: 700;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      margin-bottom: 20px;
+    }
+
+    .cta-sub {
+      font-size: 17px;
+      color: var(--text-2);
+      line-height: 1.6;
+      margin-bottom: 40px;
+      letter-spacing: -0.01em;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-brand {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text-2);
+    }
+
+    .footer-brand strong { color: var(--accent); }
+
+    .footer-note {
+      font-size: 12px;
+      color: var(--text-3);
+      letter-spacing: -0.01em;
+    }
+
+    /* ─── MOBILE ─── */
+    @media (max-width: 768px) {
+      nav { padding: 0 16px; }
+      .nav-links, .nav-pill { display: none; }
+      .nav-burger { display: block; }
+
+      .hero { padding: 80px 20px 60px; }
+
+      .statement { padding: 72px 20px; }
+
+      .disciplines { padding: 60px 20px 80px; }
+
+      .bento {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+      }
+
+      .bento-card { min-height: 240px; }
+      .bento-card:nth-child(1),
+      .bento-card:nth-child(4) {
+        grid-column: auto;
+        grid-row: auto;
+      }
+
+      .equipment { padding: 60px 20px 80px; }
+
+      .equip-list { grid-template-columns: 1fr; }
+
+      .stats { padding: 0 20px 80px; }
+
+      .stats-grid { grid-template-columns: 1fr; border-radius: 0; border-left: none; border-right: none; }
+      .stat-item { border-right: none; border-bottom: 1px solid var(--border); padding: 36px 20px; }
+      .stat-item:last-child { border-bottom: none; }
+
+      .cta-section { padding: 72px 20px 100px; }
+
+      footer { flex-direction: column; gap: 8px; text-align: center; padding: 24px 20px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-logo" href="#"><strong>MTB</strong> Montana</a>
+    <ul class="nav-links">
+      <li><a href="#disciplinas">Disciplinas</a></li>
+      <li><a href="#equipamiento">Equipamiento</a></li>
+      <li><a href="#el-deporte">El deporte</a></li>
+    </ul>
+    <button class="nav-pill">Empezar</button>
+    <button class="nav-burger" aria-label="Menu">&#9776;</button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <p class="hero-eyebrow js-hero">Bicicleta de Montana</p>
+    <h1 class="hero-headline js-hero">
+      Domina<br><em>la montana.</em>
+    </h1>
+    <p class="hero-tagline js-hero">
+      Velocidad, tecnica y naturaleza. El MTB te lleva a lugares que no existen en ningun mapa.
+    </p>
+    <div class="hero-actions js-hero">
+      <a href="#disciplinas" class="btn-primary">Ver disciplinas</a>
+      <a href="#el-deporte" class="btn-ghost">El deporte</a>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- STATEMENT -->
+  <section class="statement" id="el-deporte">
+    <p class="statement-text js-reveal">
+      El MTB nacio en California en los anos 70.
+      <span class="muted">Hoy es uno de los deportes de aventura mas practicados del planeta, con millones de riders en todos los continentes.</span>
+    </p>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- DISCIPLINES -->
+  <section class="disciplines" id="disciplinas">
+    <div class="section-header js-reveal">
+      <p class="section-eyebrow">Las disciplinas</p>
+      <h2 class="section-title">Cuatro formas<br>de rodar la montana</h2>
+    </div>
+
+    <div class="bento">
+      <div class="bento-card js-reveal">
+        <span class="disc-number">01</span>
+        <div class="disc-bottom">
+          <p class="disc-tag">Alta adrenalina</p>
+          <h3 class="disc-name">Enduro</h3>
+          <p class="disc-desc">Descensos cronometrados con subidas libres entre ellos. La disciplina total que combina resistencia, tecnica y velocidad extrema en una sola jornada.</p>
+        </div>
+      </div>
+
+      <div class="bento-card js-reveal">
+        <span class="disc-number">02</span>
+        <div class="disc-bottom">
+          <p class="disc-tag">Olimpico</p>
+          <h3 class="disc-name">Cross Country</h3>
+          <p class="disc-desc">Circuitos tecnicos que mezclan subidas y bajadas en bucle. La unica modalidad MTB presente en los Juegos Olimpicos.</p>
+        </div>
+      </div>
+
+      <div class="bento-card js-reveal">
+        <span class="disc-number">03</span>
+        <div class="disc-bottom">
+          <p class="disc-tag">Velocidad pura</p>
+          <h3 class="disc-name">Downhill</h3>
+          <p class="disc-desc">Descensos a mas de 80 km/h por pistas tecnicas con saltos y curvas cerradas. La disciplina mas extrema y espectacular.</p>
+        </div>
+      </div>
+
+      <div class="bento-card js-reveal">
+        <span class="disc-number">04</span>
+        <div class="disc-bottom">
+          <p class="disc-tag">Para todos</p>
+          <h3 class="disc-name">Trail</h3>
+          <p class="disc-desc">Singletracks en plena naturaleza. La disciplina mas popular y accesible. Sin cronometro, sin presion. Solo tu y el sendero.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EQUIPMENT -->
+  <section class="equipment" id="equipamiento">
+    <h2 class="equip-title js-reveal">Lo que necesitas<br>para empezar</h2>
+
+    <div class="equip-list">
+      <div class="equip-item js-reveal">
+        <span class="equip-num">01</span>
+        <h3 class="equip-name">Casco</h3>
+        <p class="equip-desc">Tu primera prioridad. Un casco certificado puede salvar tu vida en cualquier caida, ya sea en trail o en descenso.</p>
+      </div>
+      <div class="equip-item js-reveal">
+        <span class="equip-num">02</span>
+        <h3 class="equip-name">Protecciones</h3>
+        <p class="equip-desc">Rodilleras, coderas y protector dorsal. Imprescindibles en enduro y downhill, recomendadas en trail tecnico.</p>
+      </div>
+      <div class="equip-item js-reveal">
+        <span class="equip-num">03</span>
+        <h3 class="equip-name">La bicicleta</h3>
+        <p class="equip-desc">Desde hardtail de entrada hasta full-suspension de competicion. Elige la geometria segun tu disciplina y terreno.</p>
+      </div>
+      <div class="equip-item js-reveal">
+        <span class="equip-num">04</span>
+        <h3 class="equip-name">Zapatillas MTB</h3>
+        <p class="equip-desc">Grip, rigidez y proteccion combinados. La zapatilla correcta marca la diferencia en cada frenada y subida tecnica.</p>
+      </div>
+      <div class="equip-item js-reveal">
+        <span class="equip-num">05</span>
+        <h3 class="equip-name">Guantes</h3>
+        <p class="equip-desc">Control y agarre en terreno tecnico. Absorben vibraciones y protegen las manos en las inevitables caidas.</p>
+      </div>
+      <div class="equip-item js-reveal">
+        <span class="equip-num">06</span>
+        <h3 class="equip-name">GPS y navegacion</h3>
+        <p class="equip-desc">Rutas, altimetria y seguimiento en tiempo real. Imprescindible para explorar nuevos senderos sin perderte.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stats-grid">
+      <div class="stat-item js-reveal">
+        <div class="stat-num">40<span class="unit">M+</span></div>
+        <p class="stat-label">Practicantes activos en todo el mundo</p>
+      </div>
+      <div class="stat-item js-reveal">
+        <div class="stat-num">700<span class="unit">kcal</span></div>
+        <p class="stat-label">Quemadas por hora de rodaje intenso</p>
+      </div>
+      <div class="stat-item js-reveal">
+        <div class="stat-num">80<span class="unit">km/h</span></div>
+        <p class="stat-label">Velocidad maxima en competicion de descenso</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <h2 class="cta-headline js-reveal">Listo para<br>rodar?</h2>
+    <p class="cta-sub js-reveal">Descubre los mejores senderos, conecta con la comunidad MTB y empieza tu aventura en la montana.</p>
+    <a href="#disciplinas" class="btn-primary js-reveal">Explorar ahora</a>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-brand"><strong>MTB</strong> Montana</span>
+    <span class="footer-note">El deporte de las dos ruedas en la montana</span>
+  </footer>
+
+  <script type="module">
+    import { animate, stagger, inView } from 'https://esm.sh/motion@12.40.0';
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Nav active border on scroll
+    const nav = document.querySelector('nav');
+    document.addEventListener('scroll', () => {
+      nav.style.borderBottomColor = window.scrollY > 8
+        ? 'rgba(255,255,255,0.08)'
+        : 'transparent';
+    }, { passive: true });
+
+    if (!reduced) {
+      // Hero stagger entrance
+      const heroEls = document.querySelectorAll('.js-hero');
+      heroEls.forEach(el => { el.style.opacity = '0'; el.style.transform = 'translateY(30px)'; });
+
+      animate(
+        '.js-hero',
+        { opacity: [0, 1], y: [30, 0] },
+        { delay: stagger(0.1, { start: 0.1 }), duration: 0.9, easing: [0.16, 1, 0.3, 1] }
+      );
+
+      // Scroll reveals
+      document.querySelectorAll('.js-reveal').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(24px)';
+
+        inView(el, () => {
+          animate(el, { opacity: [0, 1], y: [24, 0] }, {
+            duration: 0.7,
+            easing: [0.16, 1, 0.3, 1]
+          });
+        }, { amount: 0.15 });
+      });
+    }
+  </script>
+</body>
+</html>

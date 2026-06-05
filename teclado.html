@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teclado</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: #04060e;
+}
+
+/* Three.js canvas */
+#three-canvas {
+  position: fixed; inset: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+}
+
+/* Pages */
+.page {
+  position: fixed; inset: 0;
+  z-index: 10;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 28px; padding: 32px 24px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 1.4s ease;
+}
+.page.active { opacity: 1; pointer-events: all; }
+
+/* PAGE 1 */
+#page1 h1 {
+  font-size: clamp(2.8rem, 6vw, 5.5rem);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.04em;
+  text-align: center;
+  text-shadow: 0 4px 40px rgba(220,60,10,0.7), 0 0 80px rgba(220,60,10,0.3);
+  text-wrap: balance;
+  line-height: 1.0;
+}
+#page1 h1 em { font-style: normal; color: #ff6b2b; }
+
+#display {
+  width: min(620px, 88vw);
+  min-height: 58px;
+  background: rgba(255,255,255,0.07);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 14px;
+  padding: 14px 20px;
+  font-size: clamp(1.05rem, 2vw, 1.25rem);
+  color: rgba(255,255,255,0.9);
+  display: flex; align-items: center;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 30px rgba(220,60,10,0.08);
+  cursor: text;
+}
+#display-text { flex: 1; white-space: pre-wrap; word-break: break-all; min-height: 1.4em; }
+#cursor {
+  width: 2px; height: 1.2em; background: #ff6b2b;
+  border-radius: 1px; flex-shrink: 0; align-self: center;
+  animation: blink 1.1s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.hint {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 0.05em;
+}
+
+/* PAGE 2 */
+#page2 { justify-content: flex-start; padding-top: 56px; overflow-y: auto; }
+#page2 h1 {
+  font-size: clamp(2rem, 4vw, 3.8rem);
+  font-weight: 800; color: #fff;
+  letter-spacing: -0.04em;
+  text-shadow: 0 4px 40px rgba(220,60,10,0.7);
+  text-align: center;
+}
+.sub {
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.3); margin-bottom: 32px; text-align: center;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 18px; width: min(1060px, 92vw);
+}
+.card {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 18px; padding: 26px;
+  transition: transform 320ms cubic-bezier(0.34,1.4,0.64,1), box-shadow 320ms ease;
+}
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 24px 50px rgba(0,0,0,0.55), 0 4px 14px rgba(220,60,10,0.25);
+}
+.badge {
+  display: inline-block;
+  background: rgba(220,60,10,0.25);
+  border: 1px solid rgba(255,100,40,0.35);
+  color: #ff7040; font-size: 0.68rem; font-weight: 600;
+  letter-spacing: 0.10em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 20px; margin-bottom: 14px;
+}
+.card-name { font-size: 1.35rem; font-weight: 700; color: #fff; margin-bottom: 3px; letter-spacing: -0.02em; }
+.card-maker { font-size: 0.82rem; color: rgba(255,255,255,0.35); margin-bottom: 18px; }
+.specs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.s-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.3); margin-bottom: 2px; }
+.s-val { font-size: 0.92rem; font-weight: 600; color: rgba(255,255,255,0.82); }
+
+/* Flash overlay */
+#flash {
+  position: fixed; inset: 0; z-index: 50;
+  background: radial-gradient(circle at center, rgba(255,120,30,0.85), rgba(180,30,10,0.7));
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+/* Progress */
+#prog {
+  position: fixed; bottom: 0; left: 0; height: 2px;
+  background: linear-gradient(90deg, #ff3010, #ff8030);
+  width: 0; z-index: 20;
+  box-shadow: 0 0 10px rgba(255,80,20,0.9);
+  transition: width linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card, #cursor { transition: none; animation: none; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="three-canvas"></canvas>
+<div id="flash"></div>
+<div id="prog"></div>
+
+<!-- PAGE 1 -->
+<div id="page1" class="page active">
+  <h1>Escribe lo que <em>quieras.</em></h1>
+  <div id="display" onclick="document.getElementById('hidden-input').focus()">
+    <span id="display-text"></span><span id="cursor"></span>
+  </div>
+  <p class="hint">Escribe con tu teclado</p>
+</div>
+<input id="hidden-input" style="position:fixed;opacity:0;pointer-events:none;top:0;left:0;" autocomplete="off">
+
+<!-- PAGE 2 -->
+<div id="page2" class="page">
+  <h1>Cazas Militares</h1>
+  <p class="sub">Los jets más rápidos y letales del mundo</p>
+  <div class="grid">
+    <div class="card">
+      <div class="badge">EE.UU. · 2005</div>
+      <div class="card-name">F-22 Raptor</div>
+      <div class="card-maker">Lockheed Martin / Boeing</div>
+      <div class="specs">
+        <div><div class="s-label">Velocidad</div><div class="s-val">Mach 2.25</div></div>
+        <div><div class="s-label">Techo</div><div class="s-val">19,812 m</div></div>
+        <div><div class="s-label">Motor</div><div class="s-val">2× F119-PW</div></div>
+        <div><div class="s-label">Generación</div><div class="s-val">5.ª gen.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="badge">EE.UU. · 2015</div>
+      <div class="card-name">F-35 Lightning II</div>
+      <div class="card-maker">Lockheed Martin</div>
+      <div class="specs">
+        <div><div class="s-label">Velocidad</div><div class="s-val">Mach 1.6</div></div>
+        <div><div class="s-label">Alcance</div><div class="s-val">2,800 km</div></div>
+        <div><div class="s-label">Motor</div><div class="s-val">F135-PW-100</div></div>
+        <div><div class="s-label">Variantes</div><div class="s-val">A / B / C</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="badge">EE.UU. · 1966</div>
+      <div class="card-name">SR-71 Blackbird</div>
+      <div class="card-maker">Lockheed Skunk Works</div>
+      <div class="specs">
+        <div><div class="s-label">Velocidad</div><div class="s-val">Mach 3.3+</div></div>
+        <div><div class="s-label">Techo</div><div class="s-val">25,908 m</div></div>
+        <div><div class="s-label">Motor</div><div class="s-val">2× J58</div></div>
+        <div><div class="s-label">Rol</div><div class="s-val">Reconocimiento</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="badge">Europa · 2003</div>
+      <div class="card-name">Eurofighter Typhoon</div>
+      <div class="card-maker">BAE / Airbus / Leonardo</div>
+      <div class="specs">
+        <div><div class="s-label">Velocidad</div><div class="s-val">Mach 2.0</div></div>
+        <div><div class="s-label">Techo</div><div class="s-val">19,500 m</div></div>
+        <div><div class="s-label">Motor</div><div class="s-val">2× EJ200</div></div>
+        <div><div class="s-label">Países</div><div class="s-val">8 naciones</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="badge">Rusia · 2010</div>
+      <div class="card-name">Su-57 Felon</div>
+      <div class="card-maker">Sukhoi</div>
+      <div class="specs">
+        <div><div class="s-label">Velocidad</div><div class="s-val">Mach 2.0</div></div>
+        <div><div class="s-label">Techo</div><div class="s-val">20,000 m</div></div>
+        <div><div class="s-label">Motor</div><div class="s-val">2× AL-41F1</div></div>
+        <div><div class="s-label">Generación</div><div class="s-val">5.ª gen.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="badge">Francia · 2001</div>
+      <div class="card-name">Dassault Rafale</div>
+      <div class="card-maker">Dassault Aviation</div>
+      <div class="specs">
+        <div><div class="s-label">Velocidad</div><div class="s-val">Mach 1.8</div></div>
+        <div><div class="s-label">Alcance</div><div class="s-val">3,700 km</div></div>
+        <div><div class="s-label">Motor</div><div class="s-val">2× M88-2</div></div>
+        <div><div class="s-label">Rol</div><div class="s-val">Multifunción</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Three.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ══════════════ THREE.JS 3D SCENE ══════════════ */
+const canvas3d = document.getElementById('three-canvas');
+const W = () => window.innerWidth, H = () => window.innerHeight;
+
+const renderer = new THREE.WebGLRenderer({ canvas: canvas3d, antialias: true, alpha: false });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(W(), H());
+renderer.shadowMap.enabled = true;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x030508);
+scene.fog = new THREE.Fog(0x6a1005, 800, 4000);
+
+const camera = new THREE.PerspectiveCamera(55, W() / H(), 0.5, 5000);
+camera.position.set(0, 18, 90);
+camera.lookAt(0, 60, -300);
+
+window.addEventListener('resize', () => {
+  renderer.setSize(W(), H());
+  camera.aspect = W() / H();
+  camera.updateProjectionMatrix();
+});
+
+/* Lighting */
+const sun = new THREE.DirectionalLight(0xff5520, 3.5);
+sun.position.set(-200, 80, -600);
+scene.add(sun);
+
+const fillLight = new THREE.DirectionalLight(0xff2200, 0.8);
+fillLight.position.set(200, 50, 100);
+scene.add(fillLight);
+
+const ambLight = new THREE.AmbientLight(0x100308, 2.0);
+scene.add(ambLight);
+
+const hemi = new THREE.HemisphereLight(0x0a0318, 0x8c2005, 0.6);
+scene.add(hemi);
+
+/* Sky gradient using a large sphere with vertex colors */
+const skyGeo = new THREE.SphereGeometry(2000, 32, 16);
+const skyMat = new THREE.ShaderMaterial({
+  side: THREE.BackSide,
+  vertexShader: `
+    varying vec3 vPosition;
+    void main() {
+      vPosition = position;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    varying vec3 vPosition;
+    void main() {
+      float t = clamp((vPosition.y + 500.0) / 2500.0, 0.0, 1.0);
+      vec3 top    = vec3(0.012, 0.015, 0.04);
+      vec3 mid    = vec3(0.12,  0.04,  0.02);
+      vec3 horiz  = vec3(0.55,  0.14,  0.02);
+      vec3 bot    = vec3(0.72,  0.22,  0.04);
+      vec3 col;
+      if (t > 0.5) col = mix(mid, top, (t - 0.5) * 2.0);
+      else if (t > 0.2) col = mix(horiz, mid, (t - 0.2) / 0.3);
+      else col = mix(bot, horiz, t / 0.2);
+      gl_FragColor = vec4(col, 1.0);
+    }
+  `,
+  depthWrite: false,
+});
+scene.add(new THREE.Mesh(skyGeo, skyMat));
+
+/* Ground */
+const groundMat = new THREE.MeshLambertMaterial({ color: 0x200805 });
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(8000, 8000, 32, 32), groundMat);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = -60;
+scene.add(ground);
+
+/* Distant mountains silhouette */
+function makeMountains(z, count, spread, height, color) {
+  const geo = new THREE.BufferGeometry();
+  const verts = [];
+  for (let i = 0; i < count; i++) {
+    const x = (Math.random() - 0.5) * spread;
+    const h = height * (0.5 + Math.random() * 0.5);
+    const w = 60 + Math.random() * 80;
+    verts.push(x - w, -60, z, x + w, -60, z, x, -60 + h, z);
+  }
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+  const mat = new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide });
+  scene.add(new THREE.Mesh(geo, mat));
+}
+makeMountains(-800, 30, 3000, 120, 0x1a0505);
+makeMountains(-500, 20, 2500,  80, 0x250808);
+
+/* Stars */
+const starVerts = [];
+for (let i = 0; i < 800; i++) {
+  const r = 1800;
+  const theta = Math.random() * Math.PI;
+  const phi   = Math.random() * Math.PI * 2;
+  starVerts.push(
+    r * Math.sin(theta) * Math.cos(phi),
+    r * Math.abs(Math.cos(theta)) + 100,
+    r * Math.sin(theta) * Math.sin(phi)
+  );
+}
+const starGeo = new THREE.BufferGeometry();
+starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starVerts, 3));
+const starMat = new THREE.PointsMaterial({ color: 0xffddcc, size: 2.5, sizeAttenuation: true });
+scene.add(new THREE.Points(starGeo, starMat));
+
+/* Sun glow disc */
+const glowGeo = new THREE.CircleGeometry(60, 32);
+const glowMat = new THREE.MeshBasicMaterial({ color: 0xff6010, transparent: true, opacity: 0.35 });
+const sunDisc = new THREE.Mesh(glowGeo, glowMat);
+sunDisc.position.set(-280, 80, -900);
+scene.add(sunDisc);
+
+const outerGlowGeo = new THREE.CircleGeometry(180, 32);
+const outerGlowMat = new THREE.MeshBasicMaterial({ color: 0xff3000, transparent: true, opacity: 0.12 });
+const outerGlow = new THREE.Mesh(outerGlowGeo, outerGlowMat);
+outerGlow.position.set(-280, 80, -901);
+scene.add(outerGlow);
+
+/* ══ JET MODEL ══ */
+function createJetMesh() {
+  const g = new THREE.Group();
+  const dark = new THREE.MeshPhongMaterial({ color: 0x101018, shininess: 120, specular: 0x334 });
+  const canopy = new THREE.MeshPhongMaterial({ color: 0x0a1a30, shininess: 200, specular: 0x224466, transparent: true, opacity: 0.8 });
+
+  // Fuselage
+  const fuse = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.28, 0.65, 14, 8),
+    dark
+  );
+  fuse.rotation.z = Math.PI / 2;
+  g.add(fuse);
+
+  // Nose cone
+  const nose = new THREE.Mesh(
+    new THREE.ConeGeometry(0.28, 5, 8),
+    dark
+  );
+  nose.rotation.z = -Math.PI / 2;
+  nose.position.set(-9.4, 0, 0);
+  g.add(nose);
+
+  // Main wings (delta swept)
+  const wingShape = new THREE.Shape();
+  wingShape.moveTo(0, 0);
+  wingShape.lineTo(-4, 9);
+  wingShape.lineTo(-6, 9);
+  wingShape.lineTo(-8, 2);
+  wingShape.lineTo(-2, 0);
+  const wingGeo = new THREE.ExtrudeGeometry(wingShape, { depth: 0.12, bevelEnabled: false });
+  const wingL = new THREE.Mesh(wingGeo, dark);
+  wingL.rotation.x = -Math.PI / 2;
+  wingL.position.set(1, 0, 0);
+  g.add(wingL);
+
+  const wingR = wingL.clone();
+  wingR.scale.z = -1;
+  g.add(wingR);
+
+  // Tail stabilizers (horizontal)
+  const hStab = new THREE.Mesh(new THREE.BoxGeometry(4, 0.1, 2.5), dark);
+  hStab.position.set(5, 0, 0);
+  g.add(hStab);
+
+  // Vertical tail fin
+  const vFin = new THREE.Mesh(new THREE.BoxGeometry(4, 2.8, 0.12), dark);
+  vFin.position.set(5, 1.4, 0);
+  g.add(vFin);
+
+  // Cockpit canopy
+  const capGeo = new THREE.SphereGeometry(0.6, 8, 6, 0, Math.PI * 2, 0, Math.PI * 0.5);
+  const cap = new THREE.Mesh(capGeo, canopy);
+  cap.position.set(-3.5, 0.55, 0);
+  cap.scale.set(2.2, 1, 1);
+  g.add(cap);
+
+  // Engine glow
+  const engGlow = new THREE.PointLight(0xff6020, 0.6, 20);
+  engGlow.position.set(7.5, 0, 0);
+  g.add(engGlow);
+
+  return g;
+}
+
+/* ══ CONTRAIL SYSTEM ══ */
+class Contrail {
+  constructor(color = 0xff4010) {
+    this.points = [];
+    this.maxPoints = 280;
+    this.geo = new THREE.BufferGeometry();
+    this.positions = new Float32Array(this.maxPoints * 3);
+    this.geo.setAttribute('position', new THREE.BufferAttribute(this.positions, 3));
+    this.geo.setDrawRange(0, 0);
+    this.mat = new THREE.LineBasicMaterial({
+      color,
+      transparent: true,
+      opacity: 0.75,
+      linewidth: 1,
+    });
+    this.line = new THREE.Line(this.geo, this.mat);
+    scene.add(this.line);
+  }
+
+  add(x, y, z) {
+    this.points.push(new THREE.Vector3(x, y, z));
+    if (this.points.length > this.maxPoints) this.points.shift();
+    const n = this.points.length;
+    for (let i = 0; i < n; i++) {
+      this.positions[i * 3]     = this.points[i].x;
+      this.positions[i * 3 + 1] = this.points[i].y;
+      this.positions[i * 3 + 2] = this.points[i].z;
+    }
+    this.geo.attributes.position.needsUpdate = true;
+    this.geo.setDrawRange(0, n);
+    // Fade opacity based on how full the buffer is
+    this.mat.opacity = Math.min(0.8, n / 40);
+  }
+
+  dispose() {
+    scene.remove(this.line);
+    this.geo.dispose();
+    this.mat.dispose();
+  }
+}
+
+/* ══ JET INSTANCES ══ */
+class JetInstance {
+  constructor({ startX, y, z, speed, delay, offsetZ = 0 }) {
+    this.mesh = createJetMesh();
+    // Jets face LEFT (flying right → left in world space, i.e. -X direction)
+    this.mesh.rotation.y = Math.PI / 2; // face -Z... adjust below
+    scene.add(this.mesh);
+
+    this.x = startX;
+    this.y = y;
+    this.z = z + offsetZ;
+    this.speed = speed;
+    this.delay = delay * 60;
+    this.active = false;
+    this.contrailL = new Contrail(0xff3808);
+    this.contrailR = new Contrail(0xff3808);
+    this.mesh.visible = false;
+
+    // Rotate to fly along -X axis
+    this.mesh.rotation.y = 0;
+    this.mesh.rotation.z = 0;
+    // jet model is built along X axis; to fly in -X direction, rotate 180° around Y
+    this.mesh.rotation.y = Math.PI;
+  }
+
+  update() {
+    if (this.delay > 0) { this.delay--; return; }
+    this.active = true;
+    this.mesh.visible = true;
+    this.x -= this.speed;
+
+    this.mesh.position.set(this.x, this.y, this.z);
+
+    // Contrail from wing tips
+    this.contrailL.add(this.x + 6,  this.y - 0.3, this.z + 5);
+    this.contrailR.add(this.x + 6,  this.y - 0.3, this.z - 5);
+  }
+
+  reset(startX) {
+    this.x = startX;
+    this.active = false;
+    this.mesh.visible = false;
+    this.contrailL.points = [];
+    this.contrailR.points = [];
+    this.contrailL.geo.setDrawRange(0, 0);
+    this.contrailR.geo.setDrawRange(0, 0);
+  }
+}
+
+// Formation: 3 jets close together + 2 smaller in the distance
+const START_X = 700;
+const jets3d = [
+  new JetInstance({ startX: START_X, y: 120, z: -320, speed: 3.8, delay: 0,   offsetZ:  0  }),
+  new JetInstance({ startX: START_X, y: 112, z: -320, speed: 3.8, delay: 0.5, offsetZ:  18 }),
+  new JetInstance({ startX: START_X, y: 112, z: -320, speed: 3.8, delay: 0.5, offsetZ: -18 }),
+  // Distant wing
+  new JetInstance({ startX: START_X + 60, y: 200, z: -600, speed: 2.0, delay: 2.5, offsetZ:  25 }),
+  new JetInstance({ startX: START_X + 60, y: 200, z: -600, speed: 2.0, delay: 3.0, offsetZ: -25 }),
+];
+
+/* Scale distant jets to look far away */
+jets3d[3].mesh.scale.setScalar(0.5);
+jets3d[4].mesh.scale.setScalar(0.5);
+
+/* ══ CAMERA gentle drift ══ */
+let camT = 0;
+
+/* ══ ANIMATE ══ */
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+  camT = t;
+
+  // Gentle camera sway
+  camera.position.x = Math.sin(t * 0.08) * 6;
+  camera.position.y = 18 + Math.sin(t * 0.12) * 2;
+  camera.lookAt(0, 65 + Math.sin(t * 0.07) * 5, -300);
+
+  jets3d.forEach(j => j.update());
+
+  renderer.render(scene, camera);
+}
+animate();
+
+/* ══════════════ TYPING ══════════════ */
+const displayTextEl = document.getElementById('display-text');
+const hiddenInput   = document.getElementById('hidden-input');
+let typed = '';
+
+function updateDisplay() { displayTextEl.textContent = typed; }
+
+hiddenInput.addEventListener('input', e => {
+  typed = hiddenInput.value;
+  updateDisplay();
+});
+hiddenInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') { typed += '\n'; hiddenInput.value = typed; updateDisplay(); }
+});
+
+document.getElementById('page1').addEventListener('click', () => hiddenInput.focus());
+hiddenInput.focus();
+
+/* ══════════════ TRANSITION ══════════════ */
+const TOTAL_MS = 12000;
+const prog = document.getElementById('prog');
+const flashEl = document.getElementById('flash');
+const page1 = document.getElementById('page1');
+const page2 = document.getElementById('page2');
+
+prog.style.transition = `width ${TOTAL_MS}ms linear`;
+requestAnimationFrame(() => { prog.style.width = '100%'; });
+
+setTimeout(() => {
+  flashEl.style.opacity = '1';
+  setTimeout(() => {
+    flashEl.style.opacity = '0';
+    page1.classList.remove('active');
+    page2.classList.add('active');
+    prog.style.display = 'none';
+
+    // Reset jets for a new pass on page 2
+    jets3d.forEach((j, i) => {
+      setTimeout(() => {
+        j.reset(START_X);
+        j.delay = 0;
+      }, i * 300);
+    });
+  }, 320);
+}, TOTAL_MS);
+
+updateDisplay();
+</script>
+</body>
+</html>

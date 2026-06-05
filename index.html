@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>La Miga Dorada — Pastelillos & Galletas Artesanales</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        oklch(0.08 0 0);
+      --surface:   oklch(0.13 0.008 162);
+      --surface2:  oklch(0.17 0.010 162);
+      --ink:       oklch(0.96 0 0);
+      --muted:     oklch(0.52 0.02 162);
+      --primary:   oklch(0.72 0.18 162);
+      --primary-d: oklch(0.58 0.18 162);
+      --accent:    oklch(0.67 0.22 350);
+      --accent-d:  oklch(0.54 0.22 350);
+      --border:    oklch(0.22 0.008 162);
+
+      --radius-sm: 10px;
+      --radius:    18px;
+      --radius-lg: 28px;
+
+      --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+      --ease-out-expo:  cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── UTILS ─────────────────────────────────────────── */
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+
+    /* ── NAV ───────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 200;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      transition: background 0.4s var(--ease-out-quart),
+                  border-color 0.4s var(--ease-out-quart);
+      border-bottom: 1px solid transparent;
+    }
+    nav.scrolled {
+      background: oklch(0.08 0 0 / 0.88);
+      backdrop-filter: blur(20px) saturate(1.4);
+      -webkit-backdrop-filter: blur(20px) saturate(1.4);
+      border-color: var(--border);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+    .logo {
+      font-family: 'Instrument Serif', serif;
+      font-size: 22px;
+      color: var(--ink);
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+    .logo em {
+      font-style: italic;
+      color: var(--primary);
+    }
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      list-style: none;
+      align-items: center;
+    }
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 6px 14px;
+      border-radius: 40px;
+      transition: color 0.2s, background 0.2s;
+    }
+    .nav-links a:hover { color: var(--ink); background: var(--surface); }
+    .nav-cta {
+      background: var(--primary) !important;
+      color: oklch(0.10 0 0) !important;
+      font-weight: 600 !important;
+    }
+    .nav-cta:hover { background: var(--primary-d) !important; }
+    .nav-burger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .nav-burger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--ink);
+      border-radius: 2px;
+      transition: transform 0.3s, opacity 0.3s;
+    }
+
+    /* Mobile nav */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      inset: 64px 0 0 0;
+      background: oklch(0.08 0 0 / 0.97);
+      backdrop-filter: blur(24px);
+      z-index: 190;
+      padding: 32px 24px;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--ink);
+      text-decoration: none;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── HERO ──────────────────────────────────────────── */
+    .hero {
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 120px 0 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-glow {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .hero-glow::before {
+      content: '';
+      position: absolute;
+      top: -20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(ellipse,
+        oklch(0.72 0.18 162 / 0.12) 0%,
+        transparent 70%);
+      border-radius: 50%;
+    }
+    .hero-glow::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      right: -10%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(ellipse,
+        oklch(0.67 0.22 350 / 0.10) 0%,
+        transparent 70%);
+      border-radius: 50%;
+    }
+
+    .hero-inner {
+      text-align: center;
+      max-width: 900px;
+      position: relative;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      padding: 6px 16px 6px 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+    .hero-tag .dot {
+      width: 8px; height: 8px;
+      background: var(--primary);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.85); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      @keyframes pulse { 0%, 100% { opacity: 1; } }
+    }
+
+    .hero-title {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      text-wrap: balance;
+      margin-bottom: 24px;
+    }
+    .hero-title em {
+      font-style: italic;
+      color: var(--primary);
+    }
+    .hero-title .accent { color: var(--accent); }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--muted);
+      max-width: 540px;
+      margin: 0 auto 40px;
+      text-wrap: pretty;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ── BUTTONS ───────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 40px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: 'Space Grotesk', sans-serif;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.2s var(--ease-out-quart),
+                  background 0.2s, box-shadow 0.2s;
+    }
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary {
+      background: var(--primary);
+      color: oklch(0.10 0 0);
+    }
+    .btn-primary:hover {
+      background: var(--primary-d);
+      box-shadow: 0 8px 32px oklch(0.72 0.18 162 / 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--ink);
+      border: 1.5px solid var(--border);
+    }
+    .btn-outline:hover {
+      background: var(--surface);
+      border-color: var(--primary);
+      transform: translateY(-1px);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: oklch(0.97 0 0);
+    }
+    .btn-accent:hover {
+      background: var(--accent-d);
+      box-shadow: 0 8px 32px oklch(0.67 0.22 350 / 0.35);
+      transform: translateY(-1px);
+    }
+
+    /* ── SCROLL INDICATOR ──────────────────────────────── */
+    .scroll-hint {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .scroll-wheel {
+      width: 24px;
+      height: 38px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      display: flex;
+      justify-content: center;
+      padding-top: 7px;
+    }
+    .scroll-wheel::before {
+      content: '';
+      width: 3px;
+      height: 8px;
+      background: var(--primary);
+      border-radius: 2px;
+      animation: scroll-down 1.8s ease-in-out infinite;
+    }
+    @keyframes scroll-down {
+      0%, 100% { transform: translateY(0); opacity: 1; }
+      80% { transform: translateY(10px); opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      @keyframes scroll-down { 0%, 100% { transform: none; } }
+    }
+
+    /* ── PRODUCTS SECTION ──────────────────────────────── */
+    .products {
+      padding: 100px 0 120px;
+    }
+
+    .section-header {
+      margin-bottom: 56px;
+    }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      text-wrap: balance;
+      margin-bottom: 16px;
+    }
+    .section-title em {
+      font-style: italic;
+      color: var(--primary);
+    }
+
+    .section-sub {
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 480px;
+    }
+
+    /* Filter tabs */
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 48px;
+    }
+    .filter-tab {
+      padding: 8px 20px;
+      border-radius: 40px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'Space Grotesk', sans-serif;
+      cursor: pointer;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      transition: all 0.2s var(--ease-out-quart);
+    }
+    .filter-tab:hover { color: var(--ink); border-color: var(--primary); }
+    .filter-tab.active {
+      background: var(--primary);
+      color: oklch(0.10 0 0);
+      border-color: var(--primary);
+    }
+
+    /* Product grid */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 20px;
+    }
+
+    .product-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: transform 0.35s var(--ease-out-expo),
+                  border-color 0.35s,
+                  box-shadow 0.35s;
+      cursor: pointer;
+    }
+    .product-card:hover {
+      transform: translateY(-6px);
+      border-color: oklch(0.72 0.18 162 / 0.5);
+      box-shadow: 0 20px 60px oklch(0 0 0 / 0.5),
+                  0 0 0 1px oklch(0.72 0.18 162 / 0.2);
+    }
+
+    .product-img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      display: block;
+      background: var(--surface2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Placeholder images using CSS */
+    .product-img-placeholder {
+      width: 100%;
+      aspect-ratio: 4/3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 56px;
+      background: var(--surface2);
+      position: relative;
+      overflow: hidden;
+    }
+    .product-img-placeholder::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        160deg,
+        transparent 40%,
+        oklch(0.72 0.18 162 / 0.06) 100%
+      );
+    }
+
+    .product-badge {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: var(--accent);
+      color: oklch(0.97 0 0);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 40px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      z-index: 1;
+    }
+    .product-badge.new { background: var(--primary); color: oklch(0.10 0 0); }
+
+    .product-img-wrap {
+      position: relative;
+    }
+
+    .product-info {
+      padding: 20px 22px 24px;
+    }
+
+    .product-name {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .product-desc {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .product-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .product-price {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .product-price span {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+    .product-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      font-family: 'Space Grotesk', sans-serif;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    }
+    .product-btn:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: oklch(0.10 0 0);
+      transform: scale(1.04);
+    }
+
+    /* ── MARQUEE ───────────────────────────────────────── */
+    .marquee-section {
+      padding: 24px 0;
+      overflow: hidden;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .marquee-track {
+      display: flex;
+      gap: 48px;
+      animation: marquee 22s linear infinite;
+      width: max-content;
+    }
+    .marquee-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      white-space: nowrap;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+    .marquee-item .star { color: var(--primary); font-size: 18px; }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .marquee-track { animation: none; }
+    }
+
+    /* ── ABOUT ─────────────────────────────────────────── */
+    .about {
+      padding: 120px 0;
+    }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .about-visual {
+      position: relative;
+    }
+    .about-main-img {
+      width: 100%;
+      aspect-ratio: 3/4;
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 80px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .about-float {
+      position: absolute;
+      bottom: -20px;
+      right: -24px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      box-shadow: 0 24px 48px oklch(0 0 0 / 0.5);
+    }
+    .about-float-stat {
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .about-float-label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .about-content { }
+    .about-content .section-sub {
+      margin-bottom: 32px;
+      font-size: 17px;
+      line-height: 1.7;
+    }
+
+    .about-pillars {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 40px;
+    }
+    .pillar {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 16px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: border-color 0.2s;
+    }
+    .pillar:hover { border-color: var(--primary); }
+    .pillar-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .pillar-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .pillar-text {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── TESTIMONIALS ──────────────────────────────────── */
+    .testimonials {
+      padding: 100px 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .reviews-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 48px;
+    }
+    .review-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+    .review-stars {
+      color: var(--primary);
+      font-size: 14px;
+      letter-spacing: 2px;
+      margin-bottom: 14px;
+    }
+    .review-text {
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: var(--ink);
+      margin-bottom: 20px;
+    }
+    .review-author {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .review-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      border: 1px solid var(--border);
+    }
+    .review-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .review-handle {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ── CTA ───────────────────────────────────────────── */
+    .cta-section {
+      padding: 120px 0;
+    }
+    .cta-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 80px 64px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-box::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%,
+        oklch(0.72 0.18 162 / 0.10) 0%,
+        transparent 70%);
+      pointer-events: none;
+    }
+    .cta-box .section-title { margin-bottom: 20px; }
+    .cta-box .section-sub { margin: 0 auto 40px; }
+    .cta-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ── FOOTER ────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 0;
+    }
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+    .footer-logo {
+      font-family: 'Instrument Serif', serif;
+      font-size: 20px;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .footer-logo em { color: var(--primary); font-style: italic; }
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+    .footer-links a {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--ink); }
+    .footer-copy {
+      font-size: 13px;
+      color: var(--muted);
+      width: 100%;
+      text-align: center;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── RESPONSIVE ────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .about-grid {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+      .about-main-img { aspect-ratio: 16/9; }
+      .about-float { bottom: 16px; right: 16px; }
+      .reviews-grid { grid-template-columns: 1fr; }
+      .cta-box { padding: 48px 28px; }
+      .nav-links { display: none; }
+      .nav-burger { display: flex; }
+    }
+    @media (max-width: 600px) {
+      .hero { padding: 100px 0 64px; }
+      .footer-inner { justify-content: center; text-align: center; }
+      .footer-links { flex-wrap: wrap; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="nav">
+    <div class="container nav-inner">
+      <a href="#" class="logo">La <em>Miga</em> Dorada</a>
+      <ul class="nav-links">
+        <li><a href="#productos">Productos</a></li>
+        <li><a href="#nosotros">Nosotros</a></li>
+        <li><a href="#resenas">Reseñas</a></li>
+        <li><a href="https://wa.me/1234567890" class="nav-cta">Hacer pedido</a></li>
+      </ul>
+      <button class="nav-burger" id="burger" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- MOBILE NAV -->
+  <div class="mobile-nav" id="mobile-nav">
+    <a href="#productos" onclick="closeMobileNav()">Productos</a>
+    <a href="#nosotros" onclick="closeMobileNav()">Nosotros</a>
+    <a href="#resenas" onclick="closeMobileNav()">Reseñas</a>
+    <a href="https://wa.me/1234567890" class="btn btn-primary" style="margin-top:16px; text-align:center; justify-content:center;">Hacer pedido →</a>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="container">
+      <div class="hero-inner">
+        <div class="hero-tag" id="hero-tag">
+          <span class="dot"></span>
+          Pedidos abiertos · Envío local
+        </div>
+        <h1 class="hero-title" id="hero-title">
+          Dulces hechos con<br><em>manos que saben</em><br>lo que hacen
+        </h1>
+        <p class="hero-sub" id="hero-sub">
+          Pastelillos y galletas artesanales. Cada pieza pensada para que quieras subirla antes de comérsela.
+        </p>
+        <div class="hero-actions" id="hero-actions">
+          <a href="#productos" class="btn btn-primary">Ver catálogo →</a>
+          <a href="https://wa.me/1234567890" class="btn btn-outline">Hacer pedido por WhatsApp</a>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-hint" id="scroll-hint">
+      <div class="scroll-wheel"></div>
+      Explorar
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-section" aria-hidden="true">
+    <div class="marquee-track" id="marquee">
+      <span class="marquee-item"><span class="star">✦</span> 100% artesanal</span>
+      <span class="marquee-item"><span class="star">✦</span> Sin conservadores</span>
+      <span class="marquee-item"><span class="star">✦</span> Pedidos personalizados</span>
+      <span class="marquee-item"><span class="star">✦</span> Envío el mismo día</span>
+      <span class="marquee-item"><span class="star">✦</span> +500 clientes felices</span>
+      <span class="marquee-item"><span class="star">✦</span> Ingredientes frescos</span>
+      <span class="marquee-item"><span class="star">✦</span> Desde 2018</span>
+      <!-- duplicate for seamless loop -->
+      <span class="marquee-item"><span class="star">✦</span> 100% artesanal</span>
+      <span class="marquee-item"><span class="star">✦</span> Sin conservadores</span>
+      <span class="marquee-item"><span class="star">✦</span> Pedidos personalizados</span>
+      <span class="marquee-item"><span class="star">✦</span> Envío el mismo día</span>
+      <span class="marquee-item"><span class="star">✦</span> +500 clientes felices</span>
+      <span class="marquee-item"><span class="star">✦</span> Ingredientes frescos</span>
+      <span class="marquee-item"><span class="star">✦</span> Desde 2018</span>
+    </div>
+  </div>
+
+  <!-- PRODUCTS -->
+  <section class="products" id="productos">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label">Catálogo</p>
+        <h2 class="section-title">Lo que más <em>piden</em></h2>
+        <p class="section-sub">Cada pieza se hace el mismo día. Sin congelados, sin atajos.</p>
+      </div>
+
+      <div class="filter-tabs" id="filter-tabs">
+        <button class="filter-tab active" data-filter="all">Todos</button>
+        <button class="filter-tab" data-filter="pastelillos">Pastelillos</button>
+        <button class="filter-tab" data-filter="galletas">Galletas</button>
+        <button class="filter-tab" data-filter="especiales">Especiales</button>
+      </div>
+
+      <div class="products-grid" id="products-grid">
+
+        <article class="product-card" data-cat="especiales">
+          <div class="product-img-wrap">
+            <div class="product-img-placeholder">🧁</div>
+            <span class="product-badge new">Nuevo</span>
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">Pastelillo de Nutella</h3>
+            <p class="product-desc">Masa esponjosa rellena de Nutella, cubierta con ganache de chocolate oscuro.</p>
+            <div class="product-footer">
+              <div class="product-price">$45 <span>/ unidad</span></div>
+              <button class="product-btn" onclick="orderProduct('Pastelillo de Nutella')">Pedir →</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="product-card" data-cat="galletas">
+          <div class="product-img-wrap">
+            <div class="product-img-placeholder">🍪</div>
+            <span class="product-badge">Top venta</span>
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">Galletas Oreo Artesanales</h3>
+            <p class="product-desc">Galleta de cacao con relleno de crema de vainilla. La versión que no puedes comprar en tienda.</p>
+            <div class="product-footer">
+              <div class="product-price">$38 <span>/ 6 piezas</span></div>
+              <button class="product-btn" onclick="orderProduct('Galletas Oreo')">Pedir →</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="product-card" data-cat="pastelillos">
+          <div class="product-img-wrap">
+            <div class="product-img-placeholder">🍓</div>
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">Pastelillo de Frambuesa</h3>
+            <p class="product-desc">Bizcocho suave con mermelada de frambuesa casera y buttercream de queso crema.</p>
+            <div class="product-footer">
+              <div class="product-price">$42 <span>/ unidad</span></div>
+              <button class="product-btn" onclick="orderProduct('Pastelillo de Frambuesa')">Pedir →</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="product-card" data-cat="especiales">
+          <div class="product-img-wrap">
+            <div class="product-img-placeholder">🍮</div>
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">Tres Leches Mini</h3>
+            <p class="product-desc">La receta familiar en formato individual. Húmedo, ligero y con cajeta encima.</p>
+            <div class="product-footer">
+              <div class="product-price">$35 <span>/ unidad</span></div>
+              <button class="product-btn" onclick="orderProduct('Tres Leches Mini')">Pedir →</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="product-card" data-cat="galletas">
+          <div class="product-img-wrap">
+            <div class="product-img-placeholder">🍫</div>
+            <span class="product-badge new">Nuevo</span>
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">Brownie de Dulce de Leche</h3>
+            <p class="product-desc">Brownie denso y fudgy con remolinos de dulce de leche y sal de mar encima.</p>
+            <div class="product-footer">
+              <div class="product-price">$40 <span>/ unidad</span></div>
+              <button class="product-btn" onclick="orderProduct('Brownie de Dulce de Leche')">Pedir →</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="product-card" data-cat="pastelillos">
+          <div class="product-img-wrap">
+            <div class="product-img-placeholder">🌸</div>
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">Macaron de Fresa</h3>
+            <p class="product-desc">Cáscaras de almendra crujientes con ganache de fresa natural. Se hacen por encargo.</p>
+            <div class="product-footer">
+              <div class="product-price">$55 <span>/ 4 piezas</span></div>
+              <button class="product-btn" onclick="orderProduct('Macarons de Fresa')">Pedir →</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="product-card" data-cat="galletas">
+          <div class="product-img-wrap">
+            <div class="product-img-placeholder">🥜</div>
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">Cookie de Mantequilla de Maní</h3>
+            <p class="product-desc">Suave por dentro, crujiente por fuera. Con chips de chocolate semiamargo.</p>
+            <div class="product-footer">
+              <div class="product-price">$32 <span>/ 4 piezas</span></div>
+              <button class="product-btn" onclick="orderProduct('Cookie de Maní')">Pedir →</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="product-card" data-cat="especiales">
+          <div class="product-img-wrap">
+            <div class="product-img-placeholder">🎂</div>
+            <span class="product-badge">Por encargo</span>
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">Pastel de Celebración</h3>
+            <p class="product-desc">Pastel personalizado para cumpleaños, reuniones y cualquier excusa para celebrar.</p>
+            <div class="product-footer">
+              <div class="product-price">Desde $280</div>
+              <button class="product-btn" onclick="orderProduct('Pastel de Celebración')">Cotizar →</button>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="about" id="nosotros">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-visual" id="about-visual">
+          <div class="about-main-img">🫶</div>
+          <div class="about-float">
+            <div class="about-float-stat">+500</div>
+            <div class="about-float-label">clientes desde 2018</div>
+          </div>
+        </div>
+        <div class="about-content">
+          <p class="section-label">Nosotros</p>
+          <h2 class="section-title" style="margin-bottom:20px;">Una cocina pequeña,<br><em>mucho sabor</em></h2>
+          <p class="section-sub">
+            Empezamos en casa, con una receta de galletas que todo el barrio pedía. Seis años después seguimos haciendo lo mismo: dulces que no tienen prisa, con ingredientes que puedes pronunciar.
+          </p>
+          <div class="about-pillars">
+            <div class="pillar">
+              <span class="pillar-icon">🌿</span>
+              <div>
+                <p class="pillar-title">Sin conservadores</p>
+                <p class="pillar-text">Todo se hornea el mismo día del pedido. Sin congelados ni químicos raros.</p>
+              </div>
+            </div>
+            <div class="pillar">
+              <span class="pillar-icon">✏️</span>
+              <div>
+                <p class="pillar-title">Pedidos personalizados</p>
+                <p class="pillar-text">Cuéntanos la ocasión, el sabor favorito, la cantidad. Lo hacemos a tu medida.</p>
+              </div>
+            </div>
+            <div class="pillar">
+              <span class="pillar-icon">📦</span>
+              <div>
+                <p class="pillar-title">Envío el mismo día</p>
+                <p class="pillar-text">Pedidos antes de las 2 pm llegan el mismo día dentro de la ciudad.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials" id="resenas">
+    <div class="container">
+      <p class="section-label">Reseñas</p>
+      <h2 class="section-title">Lo que dicen <em>las personas</em></h2>
+      <div class="reviews-grid">
+
+        <div class="review-card">
+          <div class="review-stars">★★★★★</div>
+          <p class="review-text">"Los brownies de dulce de leche son literalmente lo mejor que he comido este año. Los pedí para un cumpleaños y todos me pidieron el contacto."</p>
+          <div class="review-author">
+            <div class="review-avatar">👩</div>
+            <div>
+              <p class="review-name">Sofía R.</p>
+              <p class="review-handle">@sofiar.bites</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="review-card">
+          <div class="review-stars">★★★★★</div>
+          <p class="review-text">"Pedí los macarons para un evento y llegaron perfectos. La presentación era tan bonita que casi no los quería comer. Casi."</p>
+          <div class="review-author">
+            <div class="review-avatar">👨</div>
+            <div>
+              <p class="review-name">Miguel T.</p>
+              <p class="review-handle">@miguelt.fotografia</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="review-card">
+          <div class="review-stars">★★★★★</div>
+          <p class="review-text">"Las galletas Oreo artesanales me cambiaron la vida. Mi hermana me las trajo y ahora son parte de nuestro ritual de cada semana."</p>
+          <div class="review-author">
+            <div class="review-avatar">👩</div>
+            <div>
+              <p class="review-name">Valentina C.</p>
+              <p class="review-handle">@vale.come</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-box" id="cta-box">
+        <p class="section-label">¿Se te antojó?</p>
+        <h2 class="section-title">Haz tu pedido<br><em>ahora mismo</em></h2>
+        <p class="section-sub">WhatsApp directo, sin formularios. En menos de 10 minutos confirmamos tu pedido.</p>
+        <div class="cta-actions">
+          <a href="https://wa.me/1234567890" class="btn btn-accent">Abrir WhatsApp →</a>
+          <a href="https://www.instagram.com" class="btn btn-outline">Ver en Instagram</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <a href="#" class="footer-logo">La <em>Miga</em> Dorada</a>
+        <ul class="footer-links">
+          <li><a href="#productos">Productos</a></li>
+          <li><a href="#nosotros">Nosotros</a></li>
+          <li><a href="https://wa.me/1234567890">WhatsApp</a></li>
+          <li><a href="https://www.instagram.com">Instagram</a></li>
+        </ul>
+      </div>
+      <p class="footer-copy">© 2026 La Miga Dorada. Hecho con amor y mantequilla.</p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { animate, stagger, inView } from 'https://esm.sh/motion@12.40.0';
+
+    // ── NAV scroll behavior ──────────────────────────────
+    const nav = document.getElementById('nav');
+    const onScroll = () => {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // ── Mobile nav ───────────────────────────────────────
+    const burger = document.getElementById('burger');
+    const mobileNav = document.getElementById('mobile-nav');
+    burger.addEventListener('click', () => {
+      const open = mobileNav.classList.toggle('open');
+      burger.setAttribute('aria-expanded', open);
+    });
+    window.closeMobileNav = () => mobileNav.classList.remove('open');
+
+    // ── Set initial hidden states via JS (not CSS) ───────
+    // This ensures content is visible when JS is disabled or slow.
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!prefersReduced) {
+      document.querySelectorAll('#hero-tag, #hero-title, #hero-sub, #hero-actions, #scroll-hint')
+        .forEach(el => { el.style.opacity = '0'; });
+      document.querySelectorAll('.product-card, .pillar, .review-card')
+        .forEach(el => { el.style.opacity = '0'; });
+      document.querySelector('#about-visual').style.opacity = '0';
+    }
+
+    // ── Hero entrance ────────────────────────────────────
+    if (!prefersReduced) {
+      animate('#hero-tag', { opacity: [0, 1], y: [12, 0] },
+        { duration: 0.6, delay: 0.2, easing: [0.16, 1, 0.3, 1] });
+      animate('#hero-title', { opacity: [0, 1], y: [24, 0] },
+        { duration: 0.8, delay: 0.45, easing: [0.16, 1, 0.3, 1] });
+      animate('#hero-sub', { opacity: [0, 1], y: [16, 0] },
+        { duration: 0.7, delay: 0.65, easing: [0.16, 1, 0.3, 1] });
+      animate('#hero-actions', { opacity: [0, 1], y: [16, 0] },
+        { duration: 0.7, delay: 0.8, easing: [0.16, 1, 0.3, 1] });
+      animate('#scroll-hint', { opacity: [0, 0.6] },
+        { duration: 0.6, delay: 1.3 });
+    }
+
+    // ── Product cards on scroll ──────────────────────────
+    const productCards = document.querySelectorAll('.product-card');
+    let cardsAnimated = false;
+    inView('#productos', () => {
+      if (cardsAnimated) return;
+      cardsAnimated = true;
+      if (!prefersReduced) {
+        animate(productCards, { opacity: [0, 1], y: [32, 0] },
+          { duration: 0.55, delay: stagger(0.08), easing: [0.16, 1, 0.3, 1] });
+      } else {
+        productCards.forEach(c => { c.style.opacity = '1'; });
+      }
+    }, { margin: '0px 0px -40px 0px' });
+
+    // ── About pillars ────────────────────────────────────
+    const pillars = document.querySelectorAll('.pillar');
+    let pillarsAnimated = false;
+    inView('#nosotros', () => {
+      if (pillarsAnimated) return;
+      pillarsAnimated = true;
+      if (!prefersReduced) {
+        animate(pillars, { opacity: [0, 1], x: [-20, 0] },
+          { duration: 0.5, delay: stagger(0.1), easing: [0.16, 1, 0.3, 1] });
+      } else {
+        pillars.forEach(p => { p.style.opacity = '1'; });
+      }
+    }, { margin: '0px 0px -60px 0px' });
+
+    // ── About visual ─────────────────────────────────────
+    let visualAnimated = false;
+    inView('#about-visual', ({ target }) => {
+      if (visualAnimated) return;
+      visualAnimated = true;
+      if (!prefersReduced) {
+        animate(target, { opacity: [0, 1], x: [-32, 0] },
+          { duration: 0.7, easing: [0.16, 1, 0.3, 1] });
+      } else {
+        target.style.opacity = '1';
+      }
+    }, { margin: '0px 0px -80px 0px' });
+
+    // ── Review cards ─────────────────────────────────────
+    const reviewCards = document.querySelectorAll('.review-card');
+    let reviewsAnimated = false;
+    inView('#resenas', () => {
+      if (reviewsAnimated) return;
+      reviewsAnimated = true;
+      if (!prefersReduced) {
+        animate(reviewCards, { opacity: [0, 1], y: [24, 0] },
+          { duration: 0.55, delay: stagger(0.12), easing: [0.16, 1, 0.3, 1] });
+      } else {
+        reviewCards.forEach(c => { c.style.opacity = '1'; });
+      }
+    }, { margin: '0px 0px -60px 0px' });
+
+    // ── Filter tabs ──────────────────────────────────────
+    const tabs = document.querySelectorAll('.filter-tab');
+    const cards = document.querySelectorAll('.product-card');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const filter = tab.dataset.filter;
+
+        cards.forEach(card => {
+          const match = filter === 'all' || card.dataset.cat === filter;
+          animate(card,
+            { opacity: match ? [null, 1] : [null, 0.2], scale: match ? [null, 1] : [null, 0.97] },
+            { duration: 0.3, easing: [0.25, 1, 0.5, 1] }
+          );
+          card.style.pointerEvents = match ? 'auto' : 'none';
+        });
+      });
+    });
+
+    // ── WhatsApp order ───────────────────────────────────
+    window.orderProduct = (name) => {
+      const msg = encodeURIComponent(`Hola! Quiero pedir: ${name}`);
+      window.open(`https://wa.me/1234567890?text=${msg}`, '_blank');
+    };
+  </script>
+</body>
+</html>

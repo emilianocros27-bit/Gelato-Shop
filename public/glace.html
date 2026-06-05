@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gelato Shop — Helado y Waffle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,200;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── Tokens ──────────────────────────────────────────── */
+    :root {
+      --white:        #ffffff;
+      --black:        #1d1d1f;
+      --gray-1:       #f5f5f7;
+      --gray-2:       #e8e8ed;
+      --gray-3:       #6e6e73;
+      --accent:       #a8d8d0;
+      --accent-dark:  #5ba8a0;
+      --radius-pill:  9999px;
+      --radius-card:  16px;
+      --nav-h:        64px;
+      --font-sans:    'DM Sans', system-ui, sans-serif;
+      --font-display: 'DM Serif Display', Georgia, serif;
+      --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* ─── Reset ───────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--white);
+      color: var(--black);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; font-family: inherit; }
+
+    /* ─── Nav ─────────────────────────────────────────────── */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5vw;
+      transition: background 0.4s var(--ease-out),
+                  backdrop-filter 0.4s var(--ease-out),
+                  border-color 0.4s;
+      border-bottom: 1px solid transparent;
+    }
+    .nav.scrolled {
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom-color: var(--gray-2);
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      letter-spacing: -0.01em;
+      color: var(--black);
+      font-style: normal;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .nav-logo-icon {
+      width: 20px;
+      height: auto;
+      flex-shrink: 0;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.875rem;
+      font-weight: 400;
+      color: var(--black);
+      opacity: 0.7;
+      letter-spacing: 0.01em;
+      transition: opacity 0.2s;
+    }
+    .nav-links a:hover { opacity: 1; }
+    .nav-cta {
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-pill);
+      padding: 0.5rem 1.25rem;
+      font-size: 0.875rem;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .nav-cta:hover { background: var(--accent-dark); transform: scale(1.02); }
+
+    .nav-burger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+    .nav-burger span {
+      display: block;
+      width: 22px; height: 1.5px;
+      background: var(--black);
+      transition: transform 0.3s, opacity 0.3s;
+    }
+    .nav-burger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .nav-burger.open span:nth-child(2) { opacity: 0; }
+    .nav-burger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+    .nav-mobile {
+      display: none;
+      position: fixed;
+      inset: var(--nav-h) 0 0 0;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 99;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5rem;
+    }
+    .nav-mobile.open { display: flex; }
+    .nav-mobile a {
+      font-size: 1.75rem;
+      font-weight: 300;
+      color: var(--black);
+      letter-spacing: -0.01em;
+    }
+
+    /* ─── Hero ────────────────────────────────────────────── */
+    .hero {
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: calc(var(--nav-h) + 5rem) 5vw 6rem;
+      background: var(--white);
+    }
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .hero-logo-icon {
+      width: clamp(48px, 5vw, 72px);
+      margin-bottom: 2rem;
+    }
+    .hero-logo-icon svg { width: 100%; height: auto; }
+    .hero-brand-name {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 7.5vw, 6.5rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      color: var(--black);
+      margin-bottom: 0.6rem;
+    }
+    .hero-tagline {
+      font-size: 0.7rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--gray-3);
+      font-weight: 400;
+      margin-bottom: 2.5rem;
+    }
+    .hero-sub {
+      font-size: clamp(0.9rem, 1.8vw, 1.05rem);
+      font-weight: 300;
+      color: var(--gray-3);
+      max-width: 38ch;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      background: var(--black);
+      color: var(--white);
+      border: 1.5px solid var(--black);
+      border-radius: var(--radius-pill);
+      padding: 0.75rem 2rem;
+      font-size: 0.9375rem;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      display: inline-block;
+      transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); transform: scale(1.02); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--black);
+      border: 1.5px solid var(--gray-2);
+      border-radius: var(--radius-pill);
+      padding: 0.75rem 2rem;
+      font-size: 0.9375rem;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    }
+    .btn-secondary:hover { border-color: var(--black); background: var(--gray-1); transform: scale(1.02); }
+
+
+    /* ─── Marquee ─────────────────────────────────────────── */
+    .marquee-section {
+      overflow: hidden;
+      border-top: 1px solid var(--gray-2);
+      border-bottom: 1px solid var(--gray-2);
+      padding: 1rem 0;
+    }
+    .marquee-track {
+      display: flex;
+      width: max-content;
+      animation: marquee 28s linear infinite;
+    }
+    .marquee-section:hover .marquee-track { animation-play-state: paused; }
+    .marquee-item {
+      white-space: nowrap;
+      padding: 0 2.5rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gray-3);
+      font-weight: 400;
+    }
+    .marquee-item span { color: var(--accent-dark); margin: 0 0.4rem; }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ─── Sección genérica ────────────────────────────────── */
+    section { padding: 6rem 5vw; }
+    .section-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gray-3);
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.25rem, 5vw, 4rem);
+      font-weight: 400;
+      letter-spacing: -0.025em;
+      line-height: 1.05;
+      color: var(--black);
+      margin-bottom: 1rem;
+    }
+    .section-title em { font-style: italic; }
+    .section-sub {
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--gray-3);
+      max-width: 50ch;
+      line-height: 1.65;
+    }
+
+    /* ─── Sabores ─────────────────────────────────────────── */
+    #sabores { background: var(--white); padding-top: 4rem; padding-bottom: 0; }
+    .sabores-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+    .filter-tabs {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .filter-tab {
+      background: transparent;
+      border: 1.5px solid var(--gray-2);
+      border-radius: var(--radius-pill);
+      padding: 0.45rem 1.1rem;
+      font-size: 0.8125rem;
+      font-weight: 400;
+      color: var(--gray-3);
+      letter-spacing: 0.02em;
+      transition: all 0.2s;
+    }
+    .filter-tab:hover { border-color: var(--black); color: var(--black); }
+    .filter-tab.active {
+      background: var(--black);
+      border-color: var(--black);
+      color: var(--white);
+    }
+
+    .flavors-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .flavor-card {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 420px;
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
+      border-top: 1px solid var(--gray-2);
+    }
+    .flavor-card:last-child { border-bottom: 1px solid var(--gray-2); }
+    .flavor-card.visible { opacity: 1; transform: translateY(0); }
+    .flavor-card.hidden-cat { display: none; }
+    /* filas impares: color izq, texto der */
+    /* filas pares: texto izq, color der */
+    .flavor-card:nth-child(even) .flavor-color-block { order: 2; }
+    .flavor-card:nth-child(even) .flavor-info       { order: 1; }
+    .flavor-color-block {
+      width: 100%;
+      height: 100%;
+      min-height: 420px;
+    }
+    .flavor-info {
+      padding: 3.5rem 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+    .flavor-cat-tag {
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gray-3);
+    }
+    .flavor-name {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 3vw, 3rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      color: var(--black);
+    }
+    .flavor-desc {
+      font-size: 0.9375rem;
+      font-weight: 300;
+      color: var(--gray-3);
+      line-height: 1.7;
+      max-width: 38ch;
+    }
+    .flavor-order-btn {
+      background: transparent;
+      border: 1.5px solid var(--black);
+      border-radius: var(--radius-pill);
+      padding: 0.6rem 1.5rem;
+      font-size: 0.8125rem;
+      font-weight: 400;
+      color: var(--black);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      align-self: flex-start;
+      margin-top: 0.5rem;
+      transition: all 0.2s;
+    }
+    .flavor-order-btn:hover {
+      background: var(--black);
+      color: var(--white);
+    }
+
+    /* ─── Nosotros ────────────────────────────────────────── */
+    #nosotros {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: center;
+    }
+    .nosotros-logo {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .nosotros-logo svg {
+      width: clamp(140px, 18vw, 220px);
+      height: auto;
+    }
+    .nosotros-text .section-title { margin-bottom: 1.5rem; }
+    .nosotros-body {
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--gray-3);
+      line-height: 1.75;
+      margin-bottom: 1rem;
+    }
+
+    /* ─── Reseñas ─────────────────────────────────────────── */
+    #resenas { background: var(--gray-1); }
+    .reviews-header { margin-bottom: 3rem; }
+    .reviews-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .review-card {
+      background: var(--white);
+      border: 1px solid var(--gray-2);
+      border-radius: var(--radius-card);
+      padding: 2rem 1.75rem;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
+    }
+    .review-card.visible { opacity: 1; transform: translateY(0); }
+    .review-stars {
+      display: flex;
+      gap: 3px;
+      margin-bottom: 1.25rem;
+    }
+    .review-star {
+      width: 14px; height: 14px;
+      background: var(--accent-dark);
+      clip-path: polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+    }
+    .review-text {
+      font-size: 0.9375rem;
+      font-weight: 300;
+      color: var(--black);
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+    .review-author {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--gray-3);
+      letter-spacing: 0.02em;
+    }
+
+    /* ─── CTA final ───────────────────────────────────────── */
+    .cta-section {
+      text-align: center;
+      padding: 8rem 5vw;
+      border-top: 1px solid var(--gray-2);
+    }
+    .cta-section .section-title { margin-bottom: 1rem; }
+    .cta-section .section-sub { margin: 0 auto 2.5rem; }
+    .btn-whatsapp {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-pill);
+      padding: 1rem 2.5rem;
+      font-size: 1rem;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-whatsapp:hover { background: var(--accent-dark); transform: scale(1.02); }
+    .btn-whatsapp svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
+
+    /* ─── Footer ──────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--gray-2);
+      padding: 3rem 5vw;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+    .footer-brand p {
+      font-size: 0.8125rem;
+      font-weight: 300;
+      color: var(--gray-3);
+      line-height: 1.6;
+      margin-top: 0.5rem;
+    }
+    .footer-col h4 {
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--black);
+      margin-bottom: 1rem;
+    }
+    .footer-col p,
+    .footer-col a {
+      font-size: 0.875rem;
+      font-weight: 300;
+      color: var(--gray-3);
+      line-height: 1.8;
+      display: block;
+      transition: color 0.2s;
+    }
+    .footer-col a:hover { color: var(--black); }
+    .footer-bottom {
+      grid-column: 1 / -1;
+      border-top: 1px solid var(--gray-2);
+      padding-top: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .footer-bottom p {
+      font-size: 0.75rem;
+      color: var(--gray-3);
+      font-weight: 300;
+    }
+
+    /* ─── Responsive ──────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .nav-links, .nav-cta { display: none; }
+      .nav-burger { display: flex; }
+      .flavors-grid { grid-template-columns: repeat(2, 1fr); }
+      .reviews-grid { grid-template-columns: 1fr 1fr; }
+      #nosotros { min-height: 420px; }
+      footer { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .flavors-grid { grid-template-columns: 1fr; }
+      .reviews-grid { grid-template-columns: 1fr; }
+      .sabores-header { flex-direction: column; align-items: flex-start; }
+      footer { grid-template-columns: 1fr; }
+    }
+
+    /* ─── Reduced motion ──────────────────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      .marquee-track { animation: none; }
+      .flavor-card, .review-card {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ NAV ══════════════════════════════════════════════ -->
+  <nav class="nav" id="nav" role="navigation" aria-label="Principal">
+    <a href="#" class="nav-logo" aria-label="Gelato Shop inicio">
+      <svg viewBox="0 0 100 140" fill="none" xmlns="http://www.w3.org/2000/svg" class="nav-logo-icon" aria-hidden="true">
+        <path d="M12 46 A38 38 0 0 1 88 46 Z" fill="#1d1d1f"/>
+        <rect x="12" y="44" width="76" height="5" fill="#ffffff"/>
+        <path d="M12 49 L88 49 L50 133 Z" fill="#1d1d1f"/>
+      </svg>
+      Gelato Shop
+    </a>
+    <ul class="nav-links" role="list">
+      <li><a href="#sabores">Sabores</a></li>
+      <li><a href="#nosotros">Nosotros</a></li>
+    </ul>
+    <button class="nav-cta" onclick="window.orderProduct('Pedido')">Pedir ahora</button>
+    <button class="nav-burger" id="burger" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <div class="nav-mobile" id="navMobile" role="dialog" aria-label="Menú móvil">
+    <a href="#sabores"  onclick="closeMobile()">Sabores</a>
+    <a href="#nosotros" onclick="closeMobile()">Nosotros</a>
+    <a href="#"         onclick="window.orderProduct('Pedido'); closeMobile()">Pedir ahora</a>
+  </div>
+
+  <!-- ═══ HERO ═════════════════════════════════════════════ -->
+  <section class="hero" aria-labelledby="hero-headline">
+    <div class="hero-content">
+
+      <!-- Logo icono igual al brand -->
+      <div class="hero-logo-icon" aria-hidden="true">
+        <svg viewBox="0 0 100 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Semiesfera: arco de (12,46) a (88,46) pasando por (50,8) -->
+          <path d="M12 46 A38 38 0 0 1 88 46 Z" fill="#1d1d1f"/>
+          <!-- Línea blanca separadora -->
+          <rect x="12" y="44" width="76" height="5" fill="#ffffff"/>
+          <!-- Cono triángulo: base ancha arriba, punta abajo -->
+          <path d="M12 49 L88 49 L50 133 Z" fill="#1d1d1f"/>
+        </svg>
+      </div>
+
+      <!-- Nombre en tipografía del logo -->
+      <h1 class="hero-brand-name" id="hero-headline">Gelato shop</h1>
+      <p class="hero-tagline">HELADO Y WAFFLE</p>
+
+      <p class="hero-sub">Xalapa, Veracruz.</p>
+      <div class="hero-actions">
+        <a href="#sabores" class="btn-primary">Ver sabores</a>
+        <button class="btn-secondary" onclick="window.orderProduct('Pedido')">Pedir ahora</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ MARQUEE ══════════════════════════════════════════ -->
+  <div class="marquee-section" aria-hidden="true">
+    <div class="marquee-track">
+      <span class="marquee-item">ARTESANAL <span>·</span></span>
+      <span class="marquee-item">TEMPORADA <span>·</span></span>
+      <span class="marquee-item">SIN PRISA <span>·</span></span>
+      <span class="marquee-item">GELATO SHOP <span>·</span></span>
+      <span class="marquee-item">INGREDIENTES DE AUTOR <span>·</span></span>
+      <span class="marquee-item">HECHO HOY <span>·</span></span>
+      <span class="marquee-item">ARTESANAL <span>·</span></span>
+      <span class="marquee-item">TEMPORADA <span>·</span></span>
+      <span class="marquee-item">SIN PRISA <span>·</span></span>
+      <span class="marquee-item">GELATO SHOP <span>·</span></span>
+      <span class="marquee-item">INGREDIENTES DE AUTOR <span>·</span></span>
+      <span class="marquee-item">HECHO HOY <span>·</span></span>
+    </div>
+  </div>
+
+  <!-- ═══ SABORES ═══════════════════════════════════════════ -->
+  <section id="sabores" aria-labelledby="sabores-title">
+    <div class="sabores-header">
+      <div>
+        <p class="section-label">Carta actual</p>
+        <h2 class="section-title" id="sabores-title">Nuestros <em>sabores</em></h2>
+        <p class="section-sub">Seis elaboraciones que cambian con el mercado y la estación.</p>
+      </div>
+      <div class="filter-tabs" role="group" aria-label="Filtrar sabores">
+        <button class="filter-tab active" data-filter="all">Todos</button>
+        <button class="filter-tab" data-filter="clasico">Clásicos</button>
+        <button class="filter-tab" data-filter="especial">Especiales</button>
+        <button class="filter-tab" data-filter="temporada">Temporada</button>
+      </div>
+    </div>
+
+    <div class="flavors-grid" id="flavors-grid">
+
+      <article class="flavor-card" data-cat="clasico">
+        <div class="flavor-color-block" style="background:#f0dfc0;"></div>
+        <div class="flavor-info">
+          <p class="flavor-cat-tag">Clásico</p>
+          <h3 class="flavor-name">Vainilla Tahití</h3>
+          <p class="flavor-desc">Vainas de vainilla real de Tahití, leche entera y yema de huevo de rancho. Suave, floral, limpio.</p>
+          <button class="flavor-order-btn" onclick="window.orderProduct('Vainilla Tahití')">Ordenar</button>
+        </div>
+      </article>
+
+      <article class="flavor-card" data-cat="especial">
+        <div class="flavor-color-block" style="background:#b8d4a8;"></div>
+        <div class="flavor-info">
+          <p class="flavor-cat-tag">Especial</p>
+          <h3 class="flavor-name">Matcha Ceremonial</h3>
+          <p class="flavor-desc">Matcha de primera ceremonia de Uji, base de crema ligera. Umami profundo, sin amargor excesivo.</p>
+          <button class="flavor-order-btn" onclick="window.orderProduct('Matcha Ceremonial')">Ordenar</button>
+        </div>
+      </article>
+
+      <article class="flavor-card" data-cat="clasico">
+        <div class="flavor-color-block" style="background:#2c1a0e;"></div>
+        <div class="flavor-info">
+          <p class="flavor-cat-tag">Clásico</p>
+          <h3 class="flavor-name">Chocolate 70%</h3>
+          <p class="flavor-desc">Cacao de origen único de Tabasco, 70% de pureza. Intenso, con notas de frutos secos y caoba.</p>
+          <button class="flavor-order-btn" onclick="window.orderProduct('Chocolate 70%')">Ordenar</button>
+        </div>
+      </article>
+
+      <article class="flavor-card" data-cat="temporada">
+        <div class="flavor-color-block" style="background:#f0b0b8;"></div>
+        <div class="flavor-info">
+          <p class="flavor-cat-tag">Temporada</p>
+          <h3 class="flavor-name">Fresa Salvaje</h3>
+          <p class="flavor-desc">Fresas silvestres de Irapuato maceradas con limón amarillo. Ácido vivo, perfume de campo abierto.</p>
+          <button class="flavor-order-btn" onclick="window.orderProduct('Fresa Salvaje')">Ordenar</button>
+        </div>
+      </article>
+
+      <article class="flavor-card" data-cat="especial">
+        <div class="flavor-color-block" style="background:#e8d090;"></div>
+        <div class="flavor-info">
+          <p class="flavor-cat-tag">Especial</p>
+          <h3 class="flavor-name">Cardamomo y Miel</h3>
+          <p class="flavor-desc">Cardamomo verde molido al momento, miel de abeja melipona de Yucatán. Cálido, especiado, floral.</p>
+          <button class="flavor-order-btn" onclick="window.orderProduct('Cardamomo y Miel')">Ordenar</button>
+        </div>
+      </article>
+
+      <article class="flavor-card" data-cat="temporada">
+        <div class="flavor-color-block" style="background:#a8b890;"></div>
+        <div class="flavor-info">
+          <p class="flavor-cat-tag">Temporada</p>
+          <h3 class="flavor-name">Limón Negro</h3>
+          <p class="flavor-desc">Limón deshidratado ahumado de Persia, ralladura de limón real. Acre, mineral, sorprendente.</p>
+          <button class="flavor-order-btn" onclick="window.orderProduct('Limón Negro')">Ordenar</button>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ═══ NOSOTROS ══════════════════════════════════════════ -->
+  <section id="nosotros" aria-labelledby="nosotros-title">
+    <div class="nosotros-text">
+      <p class="section-label">Filosofía</p>
+      <h2 class="section-title" id="nosotros-title">
+        <em>Conócenos</em>
+      </h2>
+      <p class="nosotros-body">
+        Gelato Shop nació en 2021 en una cocina de 12 metros cuadrados en Xalapa, Veracruz.
+        Desde el primer día, la regla fue la misma: si no podemos conseguir el ingrediente
+        correcto, ese sabor no existe esa semana.
+      </p>
+      <p class="nosotros-body">
+        Trabajamos con productores locales, compramos en el mercado cada mañana y
+        elaboramos en lotes pequeños. Nunca fabricamos lo que no podemos vender en el día.
+      </p>
+      <p class="nosotros-body">
+        Sin conservadores. Sin colorantes. Sin prisa.
+      </p>
+    </div>
+    <div class="nosotros-logo" aria-hidden="true">
+      <svg viewBox="0 0 100 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 46 A38 38 0 0 1 88 46 Z" fill="#1d1d1f"/>
+        <rect x="12" y="44" width="76" height="5" fill="#ffffff"/>
+        <path d="M12 49 L88 49 L50 133 Z" fill="#1d1d1f"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ═══ RESEÑAS ═══════════════════════════════════════════ -->
+
+  <!-- ═══ CTA FINAL ══════════════════════════════════════════ -->
+  <section class="cta-section" aria-labelledby="cta-title">
+    <p class="section-label">Hoy elaboramos en pequeño lote</p>
+    <h2 class="section-title" id="cta-title">
+      Haz tu pedido<br><em>antes de que se acabe</em>
+    </h2>
+    <p class="section-sub">
+      Respondemos por WhatsApp en menos de 30 minutos.
+      Entregamos en Xalapa y zonas cercanas.
+    </p>
+    <button class="btn-whatsapp" onclick="window.orderProduct('Pedido general')">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+      </svg>
+      Pedir por WhatsApp
+    </button>
+  </section>
+
+  <!-- ═══ FOOTER ════════════════════════════════════════════ -->
+  <footer>
+    <div class="footer-brand">
+      <span class="nav-logo">Gelato Shop</span>
+      <p>Helado y Waffle artesanal.<br>Hecho hoy, para hoy.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Horario</h4>
+      <p>Martes a viernes: 13–20 h</p>
+      <p>Sábado y domingo: 11–21 h</p>
+      <p>Lunes: cerrado</p>
+    </div>
+    <div class="footer-col">
+      <h4>Contacto y redes</h4>
+      <a href="https://wa.me/1234567890" target="_blank" rel="noopener">WhatsApp</a>
+      <a href="#" target="_blank" rel="noopener">Instagram</a>
+      <a href="#" target="_blank" rel="noopener">TikTok</a>
+      <p style="margin-top:0.5rem;">Xalapa, Veracruz</p>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Gelato Shop — Helado y Waffle. Todos los derechos reservados.</p>
+      <p>Elaborado con intención.</p>
+    </div>
+  </footer>
+
+  <!-- ═══ THREE.JS — importmap ══════════════════════════════ -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.167.1/build/three.module.js"
+      }
+    }
+  </script>
+
+  <!-- ═══ THREE.JS — escenas ═══════════════════════════════ -->
+  <script type="module">
+    import * as THREE from 'three';
+
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function makeRenderer(canvas) {
+      const r = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      r.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      r.outputColorSpace = THREE.SRGBColorSpace;
+      return r;
+    }
+
+    /* ── HERO: esfera glossy flotante ──────────────────────── */
+    /* hero-canvas eliminado */
+
+    /* ── NOSOTROS: cono de helado 3D (logo match) ──────────── */
+    (function initNosotros() {
+      const canvas = document.getElementById('nosotros-canvas');
+      if (!canvas) return;
+
+      const scene  = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+      camera.position.set(0, 0, 7);
+      camera.setViewOffset(420, 420, -160, 0, 420, 420);
+
+      const renderer = makeRenderer(canvas);
+
+      /* ── Luces para matte-black con profundidad real ──────── */
+      scene.add(new THREE.AmbientLight(0xffffff, 0.08));
+
+      /* Key — arriba izquierda, define volumen principal */
+      const key = new THREE.DirectionalLight(0xffffff, 3.5);
+      key.position.set(-3, 5, 5);
+      scene.add(key);
+
+      /* Fill tenue — lado derecho, evita negro total */
+      const fill = new THREE.DirectionalLight(0xffffff, 0.8);
+      fill.position.set(4, 1, 3);
+      scene.add(fill);
+
+      /* Rim — contraluz superior define silueta */
+      const rim = new THREE.DirectionalLight(0xffffff, 2.0);
+      rim.position.set(2, 4, -5);
+      scene.add(rim);
+
+      /* Bottom rim — ilumina punta y la separa del fondo */
+      const botRim = new THREE.DirectionalLight(0xffffff, 1.0);
+      botRim.position.set(-1, -5, 2);
+      scene.add(botRim);
+
+      /* Point — destello especular puntual en bola */
+      const pt = new THREE.PointLight(0xffffff, 5, 10, 2);
+      pt.position.set(-2, 3.5, 3.5);
+      scene.add(pt);
+
+      /* ── Material matte-black con mínimo especular ────────── */
+      const mat = new THREE.MeshPhysicalMaterial({
+        color: 0x181818,
+        roughness: 0.28,
+        metalness: 0.0,
+        clearcoat: 0.6,
+        clearcoatRoughness: 0.15,
+      });
+
+      /* Thin separator line — material idéntico, ligeramente más claro */
+      const matLine = new THREE.MeshPhysicalMaterial({
+        color: 0x2a2a2a,
+        roughness: 0.2,
+        metalness: 0.0,
+        clearcoat: 0.8,
+        clearcoatRoughness: 0.08,
+      });
+
+      const R = 0.78;   /* radio común para bola y boca del cono */
+
+      /* Material base plana — acento menta */
+      const matBase = new THREE.MeshPhysicalMaterial({
+        color: 0x888888,
+        roughness: 0.18,
+        metalness: 0.0,
+        clearcoat: 0.7,
+        clearcoatRoughness: 0.1,
+      });
+
+      /* ── 1. Semiesfera (scoop) — boca plana mirando abajo ─── */
+      const scoopGeo  = new THREE.SphereGeometry(R, 128, 64, 0, Math.PI * 2, 0, Math.PI / 2);
+      const scoopMesh = new THREE.Mesh(scoopGeo, mat);
+      scoopMesh.position.y = 0;
+
+      /* Disco que tapa la base plana de la semiesfera */
+      const discGeo  = new THREE.CircleGeometry(R, 128);
+      const discMesh = new THREE.Mesh(discGeo, matBase);
+      discMesh.rotation.x = Math.PI / 2;   /* horizontal, mirando abajo */
+      discMesh.position.y = 0.001;          /* justo en el ecuador */
+
+      /* ── 2. Línea separadora (torus fino en y=0) ─────────── */
+      const lineGeo  = new THREE.TorusGeometry(R, 0.038, 32, 128);
+      const lineMesh = new THREE.Mesh(lineGeo, matLine);
+      lineMesh.rotation.x = Math.PI / 2;
+      lineMesh.position.y = 0;
+
+      /* ── 3. Cono (punta abajo) ─────────────────────────────── */
+      const coneGeo  = new THREE.ConeGeometry(R, 2.1, 96, 1, false);
+      const coneMesh = new THREE.Mesh(coneGeo, mat);
+      coneMesh.rotation.z = Math.PI;   /* punta abajo, boca arriba */
+      coneMesh.position.y = -1.05;     /* boca a y=0, punta a y=-2.1 */
+
+      /* ── Grupos independientes para animación separada ───── */
+      const scoopGroup = new THREE.Group();
+      scoopGroup.add(scoopMesh);
+      scoopGroup.add(discMesh);
+      scoopGroup.add(lineMesh);
+      scoopGroup.position.set(0, 0.62, 0);
+
+      const coneGroup = new THREE.Group();
+      coneGroup.add(coneMesh);
+      coneGroup.position.set(0, 0.3, 0);
+
+      scene.add(scoopGroup);
+      scene.add(coneGroup);
+
+      /* ── Resize ───────────────────────────────────────────── */
+      function resize() {
+        const size = canvas.offsetWidth;
+        renderer.setSize(size, size, false);
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      const clock = new THREE.Clock();
+
+      function tick() {
+        requestAnimationFrame(tick);
+        const t = clock.getElapsedTime();
+
+        if (!prefersReduced) {
+          /* Cono: giro lento + flotación */
+          coneGroup.rotation.y  = t * 0.32;
+          coneGroup.position.y  = 0.3 + Math.sin(t * 0.75) * 0.09;
+          coneGroup.position.x  = 0;
+
+          scoopGroup.rotation.y = -t * 0.25;
+          scoopGroup.position.y = 0.62 + Math.sin(t * 0.75 + 1.2) * 0.11;
+          scoopGroup.position.x = 0;
+        }
+
+        renderer.render(scene, camera);
+      }
+      tick();
+    })();
+  </script>
+
+  <!-- ═══ SCROLL + FILTERS + WHATSAPP (Motion) ═════════════ -->
+  <script type="module">
+    import { animate, stagger, inView } from 'https://esm.sh/motion@12.40.0';
+
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* Nav blur al scroll */
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 10);
+    }, { passive: true });
+
+    /* Burger menu */
+    const burger    = document.getElementById('burger');
+    const navMobile = document.getElementById('navMobile');
+    burger.addEventListener('click', () => {
+      const open = navMobile.classList.toggle('open');
+      burger.classList.toggle('open', open);
+      burger.setAttribute('aria-expanded', String(open));
+      document.body.style.overflow = open ? 'hidden' : '';
+    });
+    window.closeMobile = function () {
+      navMobile.classList.remove('open');
+      burger.classList.remove('open');
+      burger.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    };
+
+    /* Scroll animations */
+    if (!prefersReduced) {
+
+      /* Flavor cards */
+      let flavorsAnimated = false;
+      inView('#flavors-grid', () => {
+        if (flavorsAnimated) return;
+        flavorsAnimated = true;
+        const cards = [...document.querySelectorAll('.flavor-card:not(.hidden-cat)')];
+        animate(cards, { opacity: [0, 1], y: [28, 0] }, {
+          duration: 0.55,
+          delay: stagger(0.09),
+          easing: [0.16, 1, 0.3, 1],
+        });
+        cards.forEach(c => c.classList.add('visible'));
+      }, { amount: 0.12 });
+
+      /* Review cards */
+      let reviewsAnimated = false;
+      inView('#resenas .reviews-grid', () => {
+        if (reviewsAnimated) return;
+        reviewsAnimated = true;
+        const cards = [...document.querySelectorAll('.review-card')];
+        animate(cards, { opacity: [0, 1], y: [20, 0] }, {
+          duration: 0.5,
+          delay: stagger(0.12),
+          easing: [0.16, 1, 0.3, 1],
+        });
+        cards.forEach(c => c.classList.add('visible'));
+      }, { amount: 0.15 });
+
+      /* Nosotros texto */
+      inView('#nosotros .nosotros-text', () => {
+        animate('#nosotros .nosotros-text', { opacity: [0, 1], x: [-24, 0] }, {
+          duration: 0.7,
+          easing: [0.16, 1, 0.3, 1],
+        });
+      }, { amount: 0.25 });
+
+      /* CTA final */
+      inView('.cta-section', () => {
+        animate('.cta-section .section-title', { opacity: [0, 1], y: [20, 0] }, {
+          duration: 0.6,
+          easing: [0.16, 1, 0.3, 1],
+        });
+        animate('.btn-whatsapp', { opacity: [0, 1], scale: [0.95, 1] }, {
+          duration: 0.5,
+          delay: 0.18,
+          easing: [0.16, 1, 0.3, 1],
+        });
+      }, { amount: 0.25 });
+
+    } else {
+      /* Reduced motion: visible de inmediato */
+      document.querySelectorAll('.flavor-card, .review-card').forEach(el => {
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+      });
+    }
+
+    /* Filter tabs */
+    const tabs  = document.querySelectorAll('.filter-tab');
+    const cards = document.querySelectorAll('.flavor-card');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const filter = tab.dataset.filter;
+
+        cards.forEach(card => {
+          const match = filter === 'all' || card.dataset.cat === filter;
+          card.classList.toggle('hidden-cat', !match);
+          if (match) {
+            card.classList.add('visible');
+            if (!prefersReduced) {
+              animate(card, { opacity: [0, 1], y: [12, 0] }, {
+                duration: 0.32,
+                easing: [0.16, 1, 0.3, 1],
+              });
+            } else {
+              card.style.opacity = '1';
+              card.style.transform = 'none';
+            }
+          }
+        });
+      });
+    });
+
+    /* WhatsApp */
+    window.orderProduct = function (name) {
+      const msg = encodeURIComponent(`Hola, me interesa pedir: ${name}`);
+      window.open(`https://wa.me/1234567890?text=${msg}`, '_blank', 'noopener,noreferrer');
+    };
+  </script>
+
+</body>
+</html>

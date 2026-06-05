@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VOG — Páginas Web Profesionales</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #fff;
+      color: #0a0a0a;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* ── LINES BG ─────────────────── */
+    .paths-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .paths-bg svg { width: 100%; height: 100%; }
+    .paths-bg path { fill: none; }
+
+    /* animación manejada por SMIL en JS */
+
+    /* ── VIEWPORT CLIP ────────────── */
+    .viewport {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    /* ── WORLD: 300vw × 200vh grid ── */
+    .world {
+      position: absolute;
+      width: 300vw;
+      height: 200vh;
+      /* default: muestra el hero (columna del centro) */
+      transform: translateX(-100vw);
+      transition: transform 0.85s cubic-bezier(0.77, 0, 0.18, 1);
+    }
+    .world.go-left  { transform: translateX(0); }
+    .world.go-down  { transform: translateX(-100vw) translateY(-100vh); }
+    .world.go-right { transform: translateX(-200vw); }
+
+    /* ── PANELS ───────────────────── */
+    .panel {
+      position: absolute;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #gallery     { top: 0;     left: 0;      }
+    #hero        { top: 0;     left: 100vw;  }
+    #contact     { top: 100vh; left: 100vw;  }
+    #description { top: 0;     left: 200vw;  }
+
+    /* ── BACK BUTTON ──────────────── */
+    .back-btn {
+      position: absolute;
+      top: 1.5rem;
+      left: 1.75rem;
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 0.82rem;
+      color: #9ca3af;
+      cursor: pointer;
+      transition: color 0.2s;
+      z-index: 10;
+    }
+    .back-btn:hover { color: #0a0a0a; }
+
+    /* ── PANEL CONTENT ANIMATIONS ─── */
+    .panel-content {
+      text-align: center;
+      padding: 2.5rem 2.5rem;
+      max-width: 600px;
+      width: 100%;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease 0.5s, transform 0.5s ease 0.5s;
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(12px);
+      border-radius: 1.5rem;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+    .world.go-down  #contact     .panel-content,
+    .world.go-right #description .panel-content,
+    .world.go-left  #gallery     .panel-content {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── SHARED TEXT STYLES ───────── */
+    .panel-label {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 1rem;
+    }
+    .panel-title {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      color: #0a0a0a;
+      margin-bottom: 1.75rem;
+    }
+
+    /* ── HERO ─────────────────────── */
+    .hero-label {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 1.25rem;
+    }
+    .hero-title {
+      font-size: clamp(5rem, 16vw, 10rem);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: #0a0a0a;
+      margin-bottom: 2.5rem;
+    }
+    .hero-btns {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.7rem;
+      width: 100%;
+      max-width: 260px;
+      margin: 0 auto;
+    }
+    .hero-btns .btn {
+      width: 100%;
+      justify-content: center;
+    }
+    .btns-row {
+      width: 100%;
+    }
+
+    /* ── BUTTONS ──────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.85rem 2rem;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      border: none;
+      white-space: nowrap;
+      text-decoration: none;
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s;
+    }
+    .btn:hover { transform: scale(1.07); }
+
+    .btn-primary {
+      background: #0a0a0a;
+      color: #fff;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+    }
+    .btn-primary:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.28); }
+
+    .btn-secondary {
+      background: #fff;
+      color: #0a0a0a;
+      border: 1.5px solid #d1d5db;
+    }
+    .btn-secondary:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+
+    .btn-ghost {
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #b0b7c3;
+      cursor: pointer;
+      padding: 0.4rem 1rem;
+      transition: color 0.2s;
+    }
+    .btn-ghost:hover { color: #6b7280; }
+
+    /* ── CONTACT ──────────────────── */
+    .contact-email {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.85rem 1.75rem;
+      border-radius: 999px;
+      border: 1.5px solid #e5e7eb;
+      background: rgba(255,255,255,0.95);
+      text-decoration: none;
+      color: #0a0a0a;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+    }
+    .contact-email:hover {
+      border-color: #9ca3af;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+    .contact-note {
+      margin-top: 0.75rem;
+      font-size: 0.72rem;
+      color: #d1d5db;
+    }
+
+    /* ── DESCRIPTION ──────────────── */
+    .desc-text {
+      font-size: 1rem;
+      color: #0a0a0a;
+      line-height: 1.75;
+      max-width: 520px;
+      margin: 0 auto 2rem;
+    }
+    .desc-text strong {
+      color: #0a0a0a;
+      font-weight: 700;
+    }
+    .desc-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+    .desc-pill {
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      border: 1.5px solid #e5e7eb;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #6b7280;
+      background: rgba(255,255,255,0.8);
+    }
+
+    /* ── GALLERY ────────────────────────────── */
+    .gallery-grid {
+      margin-top: 0.5rem;
+    }
+    .gallery-empty {
+      padding: 2.5rem 1.5rem;
+      border: 1.5px dashed #e5e7eb;
+      border-radius: 1rem;
+      color: #9ca3af;
+      text-align: center;
+    }
+    .gallery-empty span {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+    .gallery-empty p {
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Lines -->
+<div class="paths-bg">
+  <svg id="pathSvg" viewBox="0 0 696 316"
+       preserveAspectRatio="xMidYMid slice"
+       xmlns="http://www.w3.org/2000/svg"></svg>
+</div>
+
+<!-- Viewport -->
+<div class="viewport">
+  <div class="world" id="world">
+
+    <!-- GALERÍA: izquierda (0,0) -->
+    <div class="panel" id="gallery">
+      <button class="back-btn" onclick="goHome()">→ Volver</button>
+      <div class="panel-content">
+        <span class="panel-label">Nuestro trabajo</span>
+        <h2 class="panel-title">Lo que<br>hemos hecho</h2>
+        <div class="gallery-grid">
+          <div class="gallery-empty">
+            <span>Próximamente</span>
+            <p>Aquí irán los proyectos que vayamos terminando.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HERO: centro (100vw, 0) -->
+    <div class="panel" id="hero">
+      <div style="text-align:center;padding:0 2rem;max-width:860px;width:100%">
+        <span class="hero-label">Diseño web profesional</span>
+        <h1 class="hero-title">VOG</h1>
+        <div class="hero-btns">
+          <div class="btns-row">
+            <button class="btn btn-primary" onclick="goDown()">
+              Cotiza tu web
+            </button>
+          </div>
+          <button class="btn btn-secondary" onclick="showPanel('gallery')">Galería</button>
+          <button class="btn btn-secondary" onclick="showPanel('desc')">Tópanos</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACT: abajo (0, 100vh) -->
+    <div class="panel" id="contact">
+      <button class="back-btn" onclick="goHome()">↑ Volver</button>
+      <div class="panel-content">
+        <span class="panel-label">Contacto</span>
+        <h2 class="panel-title">¿Listo para<br>tu página?</h2>
+        <a class="contact-email" href="mailto:vog.disenoweb@gmail.com">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <path d="M2 7l10 7 10-7"/>
+          </svg>
+          vog.disenoweb@gmail.com
+        </a>
+        <p class="contact-note">Respondemos en menos de 24 h</p>
+      </div>
+    </div>
+
+    <!-- PANEL DERECHO: Tópanos / Galería -->
+    <div class="panel" id="description">
+      <button class="back-btn" onclick="goHome()">← Volver</button>
+
+      <!-- Vista: Tópanos -->
+      <div class="panel-content" id="view-desc">
+        <span class="panel-label">Quiénes somos</span>
+        <h2 class="panel-title">Tu web,<br>a tu estilo</h2>
+        <p class="desc-text">
+          En <strong>VOG</strong> no trabajamos con plantillas — cada página
+          la construimos desde cero basándonos en lo que tú nos describes:
+          tu negocio, tu estilo, tus colores, tu cliente ideal.<br><br>
+          El proceso es simple: nos platicas qué quieres, te mostramos un
+          diseño, lo afinamos juntos y lo entregamos listo para usarse.
+          Sin tecnicismos, sin rodeos.<br><br>
+          Trabajamos con negocios, emprendedores y marcas personales que
+          quieren una presencia en internet que los represente de verdad —
+          no una página que se vea igual a la de todos.
+        </p>
+        <div class="desc-pills">
+          <span class="desc-pill">Diseño desde cero</span>
+          <span class="desc-pill">Proceso simple</span>
+          <span class="desc-pill">A tu medida</span>
+          <span class="desc-pill">Entrega rápida</span>
+          <span class="desc-pill">Mobile-first</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── Lines: rectas de esquina a esquina ──────────────
+(function () {
+  var svg = document.getElementById('pathSvg');
+  var N = 40; // líneas por grupo
+
+  // Grupo 1: esquina top-left → esquina bottom-right (abanicadas)
+  // Grupo 2: esquina bottom-left → esquina top-right (abanicadas)
+  var groups = [
+    { x0: 0,   y0: 0,   x1: 696, y1: 316, gi: 0 },
+    { x0: 0,   y0: 316, x1: 696, y1: 0,   gi: 1 },
+  ];
+
+  groups.forEach(function(g, gi) {
+    for (var i = 0; i < N; i++) {
+      var p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      var t = (i / (N - 1)) - 0.5; // -0.5 a 0.5
+
+      // spread de inicio y fin para crear el abanico
+      var spread = 260;
+      var sx = g.x0 + t * spread;
+      var sy = g.y0;
+      var ex = g.x1 + t * spread;
+      var ey = g.y1;
+
+      var d = 'M' + sx + ' ' + sy + ' L' + ex + ' ' + ey;
+      p.setAttribute('d', d);
+      p.setAttribute('stroke', 'rgb(15,23,42)');
+      p.setAttribute('stroke-opacity', (0.06 + i*0.018).toFixed(3));
+      p.setAttribute('stroke-width',   (0.3 + i*0.02).toFixed(2));
+      svg.appendChild(p);
+
+      var len   = Math.ceil(p.getTotalLength());
+      var dur   = (45 + (i % 8) * 5).toFixed(1);
+      var begin = (i * 0.8 + gi * 16).toFixed(1);
+
+      p.setAttribute('stroke-dasharray', len + ' ' + len);
+
+      // SMIL: stroke-dashoffset de +len a -len (línea viaja de inicio a fin)
+      var animDash = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+      animDash.setAttribute('attributeName', 'stroke-dashoffset');
+      animDash.setAttribute('from', len);
+      animDash.setAttribute('to',  -len);
+      animDash.setAttribute('dur',  dur + 's');
+      animDash.setAttribute('begin', '-' + begin + 's');
+      animDash.setAttribute('repeatCount', 'indefinite');
+      animDash.setAttribute('calcMode', 'linear');
+      p.appendChild(animDash);
+
+      // SMIL: opacity pulsa suave
+      var animOp = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+      animOp.setAttribute('attributeName', 'stroke-opacity');
+      animOp.setAttribute('values', '0.3;0.7;0.3');
+      animOp.setAttribute('dur', dur + 's');
+      animOp.setAttribute('begin', '-' + begin + 's');
+      animOp.setAttribute('repeatCount', 'indefinite');
+      p.appendChild(animOp);
+    }
+  }); // groups.forEach
+})();
+
+// ── Navigation ──────────────────────────────────────
+var world = document.getElementById('world');
+function goDown()  { world.className = 'world go-down';  }
+function goRight()   { world.className = 'world go-right'; }
+function showPanel(view) {
+  if (view === 'gallery') world.className = 'world go-left';
+  if (view === 'desc')    world.className = 'world go-right';
+}
+function goHome()  { world.className = 'world'; }
+</script>
+</body>
+</html>
