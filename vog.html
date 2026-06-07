@@ -275,8 +275,53 @@
       text-transform: uppercase;
       margin-bottom: 0.4rem;
     }
-    .gallery-empty p {
-      font-size: 0.85rem;
+    .gallery-empty p { font-size: 0.85rem; }
+
+    .gallery-card {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      padding: 1rem 1.25rem;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 1rem;
+      text-decoration: none;
+      background: #fff;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+      text-align: left;
+    }
+    .gallery-card:hover {
+      border-color: #9ca3af;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+      transform: translateY(-2px);
+    }
+    .gallery-card-preview {
+      width: 162px;
+      height: 108px;
+      border-radius: 0.75rem;
+      background: #f9fafb;
+      overflow: hidden;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .gallery-card-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .gallery-card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #0a0a0a;
+    }
+    .gallery-card-desc {
+      font-size: 0.78rem;
+      color: #6b7280;
+    }
+    .gallery-card-link {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #0a0a0a;
+      margin-top: 0.2rem;
     }
   </style>
 </head>
@@ -300,10 +345,28 @@
         <span class="panel-label">Nuestro trabajo</span>
         <h2 class="panel-title">Lo que<br>hemos hecho</h2>
         <div class="gallery-grid">
-          <div class="gallery-empty">
-            <span>Próximamente</span>
-            <p>Aquí irán los proyectos que vayamos terminando.</p>
-          </div>
+          <a class="gallery-card" href="https://emilianocros27-bit.github.io/Gelato-Shop" target="_blank" rel="noopener">
+            <div class="gallery-card-preview">
+              <iframe
+                src="https://emilianocros27-bit.github.io/Gelato-Shop"
+                scrolling="no"
+                tabindex="-1"
+                style="
+                  width: 900px;
+                  height: 600px;
+                  border: none;
+                  transform: scale(0.18);
+                  transform-origin: top left;
+                  pointer-events: none;
+                "
+              ></iframe>
+            </div>
+            <div class="gallery-card-info">
+              <span class="gallery-card-title">Gelato Shop</span>
+              <span class="gallery-card-desc">Heladería artesanal en Xalapa, Veracruz</span>
+              <span class="gallery-card-link">Ver página →</span>
+            </div>
+          </a>
         </div>
       </div>
     </div>
@@ -331,14 +394,14 @@
       <div class="panel-content">
         <span class="panel-label">Contacto</span>
         <h2 class="panel-title">¿Listo para<br>tu página?</h2>
-        <a class="contact-email" href="mailto:vog.disenoweb@gmail.com">
+        <a class="contact-email" href="mailto:vog.web.studio@gmail.com">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="1.8"
                stroke-linecap="round" stroke-linejoin="round">
             <rect x="2" y="4" width="20" height="16" rx="2"/>
             <path d="M2 7l10 7 10-7"/>
           </svg>
-          vog.disenoweb@gmail.com
+          vog.web.studio@gmail.com
         </a>
         <p class="contact-note">Respondemos en menos de 24 h</p>
       </div>
