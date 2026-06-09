@@ -432,8 +432,9 @@
       .burger { display: flex; }
 
       #hero { grid-template-columns: 1fr; min-height: auto; }
-      .hero-left { padding: 5rem 1.5rem 3rem; }
-      .hero-right { height: 55vw; }
+      .hero-left { padding: 5rem 1.5rem 2rem; order: 2; }
+      .hero-right { height: 75vw; max-height: 420px; order: 1; margin-top: 72px; }
+      .hero-right img { object-position: center 20%; }
 
       section { padding: 5rem 1.5rem; }
       #nosotros { grid-template-columns: 1fr; gap: 2.5rem; }
@@ -649,4 +650,3 @@
 </script>
 </body>
 </html>
- 
